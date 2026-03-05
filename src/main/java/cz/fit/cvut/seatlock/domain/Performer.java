@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,5 +30,5 @@ public class Performer {
     private String description;
 
     @ManyToMany(mappedBy = "performers")
-    private List<Activity> activities;
+    private List<Activity> activities = new ArrayList<>();
 }

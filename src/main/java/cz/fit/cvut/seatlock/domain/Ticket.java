@@ -1,5 +1,6 @@
 package cz.fit.cvut.seatlock.domain;
 
+import cz.fit.cvut.seatlock.domain.enums.TicketStatus;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

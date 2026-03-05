@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,8 +27,8 @@ public class Hall {
     private String name;
 
     @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Seat> seats;
+    private List<Seat> seats = new ArrayList<>();
 
     @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL)
-    private List<Activity> activities;
+    private List<Activity> activities = new ArrayList<>();
 }
