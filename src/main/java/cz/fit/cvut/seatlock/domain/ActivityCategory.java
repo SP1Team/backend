@@ -28,4 +28,8 @@ public class ActivityCategory {
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Activity> activities = new ArrayList<>();
+
+    public ActivityCategory(String name) {
+        this.name = name;
+    }
 }
