@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <include file="db/changelog/v1.0/01-create-activity-category.xml"/>
+    <include file="db/changelog/v1.0/02-create-hall.xml"/>
+    <include file="db/changelog/v1.0/03-create-performer.xml"/>
+    <include file="db/changelog/v1.0/04-create-app-user.xml"/>
+    <include file="db/changelog/v1.0/05-create-activity.xml"/>
+    <include file="db/changelog/v1.0/06-create-seat.xml"/>
+    <include file="db/changelog/v1.0/07-create-activity-performer.xml"/>
+    <include file="db/changelog/v1.0/08-create-offer.xml"/>
+    <include file="db/changelog/v1.0/09-create-app-order.xml"/>
+    <include file="db/changelog/v1.0/10-create-ticket.xml"/>
+
+</databaseChangeLog>
