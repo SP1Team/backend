@@ -1,5 +1,4 @@
 services:
-  # Основная база данных (PostgreSQL)
   db:
     image: postgres:16-alpine
     container_name: seatlock-db
@@ -20,7 +19,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis для быстрых локов и GraphQL Subscriptions
   redis:
     image: redis:7-alpine
     container_name: seatlock-redis
@@ -33,7 +31,6 @@ services:
     volumes:
       - redisdata:/data
 
-  # Elasticsearch для сложного поиска
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
     container_name: seatlock-elastic
@@ -41,7 +38,7 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # Ограничение памяти, чтобы не "вешал" систему
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:
         soft: -1
@@ -53,7 +50,6 @@ services:
     volumes:
       - elasticdata:/usr/share/elasticsearch/data
 
-  # Ваше Spring Boot приложение
   app:
     build: .
     container_name: seatlock-api
