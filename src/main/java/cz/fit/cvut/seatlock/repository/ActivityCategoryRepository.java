@@ -1,9 +1,9 @@
 package cz.fit.cvut.seatlock.repository;
 
 import cz.fit.cvut.seatlock.domain.ActivityCategory;
+import static cz.fit.cvut.seatlock.generated.Tables.*;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
-import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,41 +17,34 @@ public class ActivityCategoryRepository {
     private final DSLContext dsl;
 
     public List<ActivityCategory> findAll() {
-        return dsl.selectFrom(DSL.table(DSL.name("activity_category")))
+        return dsl.selectFrom(ACTIVITY_CATEGORY)
                 .fetchInto(ActivityCategory.class);
     }
 
     public Optional<ActivityCategory> findById(UUID id) {
-        return dsl.selectFrom(DSL.table(DSL.name("activity_category")))
-                .where(DSL.field(DSL.name("id"), UUID.class).eq(id))
+        return dsl.selectFrom(ACTIVITY_CATEGORY)
+                .where(ACTIVITY_CATEGORY.ID.eq(id))
                 .fetchOptionalInto(ActivityCategory.class);
     }
 
     public Optional<ActivityCategory> findByName(String name) {
-        return dsl.selectFrom(DSL.table(DSL.name("activity_category")))
-                .where(DSL.field(DSL.name("name")).eq(name))
+        return dsl.selectFrom(ACTIVITY_CATEGORY)
+                .where(ACTIVITY_CATEGORY.NAME.eq(name))
                 .fetchOptionalInto(ActivityCategory.class);
     }
 
     public ActivityCategory save(ActivityCategory category) {
+        var record = dsl.newRecord(ACTIVITY_CATEGORY, category);
         if (category.getId() == null) {
-            category.setId(UUID.randomUUID());
-            dsl.insertInto(DSL.table(DSL.name("activity_category")))
-                    .set(DSL.field(DSL.name("id"), UUID.class), category.getId())
-                    .set(DSL.field(DSL.name("name"), String.class), category.getName())
-                    .execute();
-        } else {
-            dsl.update(DSL.table(DSL.name("activity_category")))
-                    .set(DSL.field(DSL.name("name"), String.class), category.getName())
-                    .where(DSL.field(DSL.name("id"), UUID.class).eq(category.getId()))
-                    .execute();
+            record.setId(UUID.randomUUID());
         }
-        return category;
+        record.store();
+        return record.into(ActivityCategory.class);
     }
 
     public void delete(ActivityCategory category) {
-        dsl.deleteFrom(DSL.table(DSL.name("activity_category")))
-                .where(DSL.field(DSL.name("id"), UUID.class).eq(category.getId()))
+        dsl.deleteFrom(ACTIVITY_CATEGORY)
+                .where(ACTIVITY_CATEGORY.ID.eq(category.getId()))
                 .execute();
     }
 }

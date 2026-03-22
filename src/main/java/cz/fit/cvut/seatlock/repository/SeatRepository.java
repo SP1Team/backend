@@ -1,9 +1,9 @@
 package cz.fit.cvut.seatlock.repository;
 
 import cz.fit.cvut.seatlock.domain.Seat;
+import static cz.fit.cvut.seatlock.generated.Tables.*;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
-import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,41 +17,31 @@ public class SeatRepository {
     private final DSLContext dsl;
 
     public List<Seat> findAll() {
-        return dsl.selectFrom(DSL.table(DSL.name("seat")))
+        return dsl.selectFrom(SEAT)
                 .fetchInto(Seat.class);
     }
 
     public Optional<Seat> findById(UUID id) {
-        return dsl.selectFrom(DSL.table(DSL.name("seat")))
-                .where(DSL.field(DSL.name("id"), UUID.class).eq(id))
+        return dsl.selectFrom(SEAT)
+                .where(SEAT.ID.eq(id))
                 .fetchOptionalInto(Seat.class);
     }
 
     public Seat save(Seat seat) {
-        if (seat.getId() == null) {
-            seat.setId(UUID.randomUUID());
-            dsl.insertInto(DSL.table(DSL.name("seat")))
-                    .set(DSL.field(DSL.name("id"), UUID.class), seat.getId())
-                    .set(DSL.field(DSL.name("row_number"), Integer.class), seat.getRowNumber())
-                    .set(DSL.field(DSL.name("seat_number"), Integer.class), seat.getSeatNumber())
-                    .set(DSL.field(DSL.name("hall_id"), UUID.class),
-                            seat.getHall() != null ? seat.getHall().getId() : null)
-                    .execute();
-        } else {
-            dsl.update(DSL.table(DSL.name("seat")))
-                    .set(DSL.field(DSL.name("row_number"), Integer.class), seat.getRowNumber())
-                    .set(DSL.field(DSL.name("seat_number"), Integer.class), seat.getSeatNumber())
-                    .set(DSL.field(DSL.name("hall_id"), UUID.class),
-                            seat.getHall() != null ? seat.getHall().getId() : null)
-                    .where(DSL.field(DSL.name("id"), UUID.class).eq(seat.getId()))
-                    .execute();
+        var record = dsl.newRecord(SEAT, seat);
+        if (seat.getHall() != null) {
+            record.setHallId(seat.getHall().getId());
         }
-        return seat;
+        if (seat.getId() == null) {
+            record.setId(UUID.randomUUID());
+        }
+        record.store();
+        return record.into(Seat.class);
     }
 
     public void delete(Seat seat) {
-        dsl.deleteFrom(DSL.table(DSL.name("seat")))
-                .where(DSL.field(DSL.name("id"), UUID.class).eq(seat.getId()))
+        dsl.deleteFrom(SEAT)
+                .where(SEAT.ID.eq(seat.getId()))
                 .execute();
     }
 }

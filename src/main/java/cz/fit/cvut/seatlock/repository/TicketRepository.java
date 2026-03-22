@@ -1,9 +1,9 @@
 package cz.fit.cvut.seatlock.repository;
 
 import cz.fit.cvut.seatlock.domain.Ticket;
+import static cz.fit.cvut.seatlock.generated.Tables.*;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
-import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,49 +17,40 @@ public class TicketRepository {
     private final DSLContext dsl;
 
     public List<Ticket> findAll() {
-        return dsl.selectFrom(DSL.table(DSL.name("ticket")))
+        return dsl.selectFrom(TICKET)
                 .fetchInto(Ticket.class);
     }
 
     public Optional<Ticket> findById(UUID id) {
-        return dsl.selectFrom(DSL.table(DSL.name("ticket")))
-                .where(DSL.field(DSL.name("id"), UUID.class).eq(id))
+        return dsl.selectFrom(TICKET)
+                .where(TICKET.ID.eq(id))
                 .fetchOptionalInto(Ticket.class);
     }
 
     public Ticket save(Ticket ticket) {
-        if (ticket.getId() == null) {
-            ticket.setId(UUID.randomUUID());
-            dsl.insertInto(DSL.table(DSL.name("ticket")))
-                    .set(DSL.field(DSL.name("id"), UUID.class), ticket.getId())
-                    .set(DSL.field(DSL.name("status"), String.class),
-                            ticket.getStatus() != null ? ticket.getStatus().name() : null)
-                    .set(DSL.field(DSL.name("order_id"), UUID.class),
-                            ticket.getOrder() != null ? ticket.getOrder().getId() : null)
-                    .set(DSL.field(DSL.name("seat_id"), UUID.class),
-                            ticket.getSeat() != null ? ticket.getSeat().getId() : null)
-                    .set(DSL.field(DSL.name("offer_id"), UUID.class),
-                            ticket.getOffer() != null ? ticket.getOffer().getId() : null)
-                    .execute();
-        } else {
-            dsl.update(DSL.table(DSL.name("ticket")))
-                    .set(DSL.field(DSL.name("status"), String.class),
-                            ticket.getStatus() != null ? ticket.getStatus().name() : null)
-                    .set(DSL.field(DSL.name("order_id"), UUID.class),
-                            ticket.getOrder() != null ? ticket.getOrder().getId() : null)
-                    .set(DSL.field(DSL.name("seat_id"), UUID.class),
-                            ticket.getSeat() != null ? ticket.getSeat().getId() : null)
-                    .set(DSL.field(DSL.name("offer_id"), UUID.class),
-                            ticket.getOffer() != null ? ticket.getOffer().getId() : null)
-                    .where(DSL.field(DSL.name("id"), UUID.class).eq(ticket.getId()))
-                    .execute();
+        var record = dsl.newRecord(TICKET, ticket);
+        if (ticket.getStatus() != null) {
+            record.setStatus(ticket.getStatus().name());
         }
-        return ticket;
+        if (ticket.getOrder() != null) {
+            record.setOrderId(ticket.getOrder().getId());
+        }
+        if (ticket.getSeat() != null) {
+            record.setSeatId(ticket.getSeat().getId());
+        }
+        if (ticket.getOffer() != null) {
+            record.setOfferId(ticket.getOffer().getId());
+        }
+        if (ticket.getId() == null) {
+            record.setId(UUID.randomUUID());
+        }
+        record.store();
+        return record.into(Ticket.class);
     }
 
     public void delete(Ticket ticket) {
-        dsl.deleteFrom(DSL.table(DSL.name("ticket")))
-                .where(DSL.field(DSL.name("id"), UUID.class).eq(ticket.getId()))
+        dsl.deleteFrom(TICKET)
+                .where(TICKET.ID.eq(ticket.getId()))
                 .execute();
     }
 }
