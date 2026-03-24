@@ -4,7 +4,7 @@ type Hall{
     address: String!
 }
 
-type RowConfig{
+input RowConfig{
     rowNumber: Int!
     countOfSeats: Int!
 }
@@ -17,4 +17,5 @@ input HallInput{
 
 extend type Mutation{
     createHall(input: HallInput!): Hall
+    deleteHall(id: ID!): Boolean
 }

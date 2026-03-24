@@ -9,6 +9,8 @@ import cz.fit.cvut.seatlock.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class HallService {
@@ -29,5 +31,11 @@ public class HallService {
             }
         });
         return hallRepository.save(newHall);
+    }
+
+    public Boolean deleteHall(UUID id) {
+        Hall hallToDelete = hallRepository.findById(id).orElseThrow(() -> new RuntimeException("Hall not found"));
+        hallRepository.delete(hallToDelete);
+        return true;
     }
 }
