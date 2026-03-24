@@ -20,6 +20,8 @@ public class Hall {
 
     private String name;
 
+    private String address;
+
     private List<Seat> seats = new ArrayList<>();
 
     private List<Activity> activities = new ArrayList<>();
