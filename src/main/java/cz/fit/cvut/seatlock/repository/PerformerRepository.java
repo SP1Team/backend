@@ -27,6 +27,18 @@ public class PerformerRepository {
                 .fetchOptionalInto(Performer.class);
     }
 
+    public Optional<Performer> findByName(String name) {
+        return dsl.selectFrom(PERFORMER)
+                .where(PERFORMER.NAME.eq(name))
+                .fetchOptionalInto(Performer.class);
+    }
+
+    public List<Performer> findAllByIds(List<UUID> ids) {
+        return dsl.selectFrom(PERFORMER)
+                .where(PERFORMER.ID.in(ids))
+                .fetchInto(Performer.class);
+    }
+
     public Performer save(Performer performer) {
         var record = dsl.newRecord(PERFORMER, performer);
         if (performer.getId() == null) {

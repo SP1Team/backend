@@ -23,4 +23,9 @@ public class Performer {
     private String description;
 
     private List<Activity> activities = new ArrayList<>();
+
+    public Performer(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
 }

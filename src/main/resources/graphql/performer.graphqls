@@ -1,0 +1,14 @@
+type Performer{
+    id : ID!
+    name : String!
+    description : String
+}
+
+input PerformerInput{
+    name : String!
+    description : String
+}
+
+extend type Mutation{
+    createPerformer(input : PerformerInput!) : Performer
+}
