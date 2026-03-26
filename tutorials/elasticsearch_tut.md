@@ -50,7 +50,7 @@ public class ActivityDocument {
     @Field(type = FieldType.Date)
     private LocalDate date;
 
-    @Field(type = FieldType.Text, index = false)
+    @Field(type = FieldType.Text, analyzer = "standard")
     private String description;
 
     @Field(type = FieldType.Keyword)
@@ -130,29 +130,11 @@ private LocalDate date;
 ### 3.4. `description` — описание мероприятия
 
 ```java
-@Field(type = FieldType.Text, index = false)
-private String description;
-```
-
-- Тип `Text`, **но** `index = false`.
-- Это значит:
-    - поле хранится в `_source` и отдаётся клиенту;
-    - **но по нему нельзя искать** и строить фильтры — ES его не индексирует.
-
-**Это осознанное решение:**
-
-- сейчас поиск идёт только по `name` и `performerNames`;
-- `description` используется исключительно для отображения в карточке мероприятия.
-
-Если когда‑нибудь захотим искать по описанию, нужно будет:
-
-```java
 @Field(type = FieldType.Text, analyzer = "standard")
 private String description;
 ```
 
-(и удалить `index = false`).
-
+- Тип `Text`.
 ---
 
 ### 3.5. `activityCategory` — категория мероприятия
