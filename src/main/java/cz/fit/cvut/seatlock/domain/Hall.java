@@ -20,7 +20,14 @@ public class Hall {
 
     private String name;
 
+    private String address;
+
     private List<Seat> seats = new ArrayList<>();
 
     private List<Activity> activities = new ArrayList<>();
+
+    public Hall(String name, String address) {
+        this.name = name;
+        this.address = address;
+    }
 }

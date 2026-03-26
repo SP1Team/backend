@@ -36,6 +36,20 @@ public class HallRepository {
         return record.into(Hall.class);
     }
 
+    public Boolean existsByName(String name){
+        return dsl.fetchExists(
+                dsl.selectFrom(HALL).where(HALL.NAME.eq(name))
+        );
+    }
+
+    public boolean existsByNameAndIdNot(String name, UUID id) {
+        return dsl.fetchExists(
+                dsl.selectFrom(HALL)
+                        .where(HALL.NAME.eq(name))
+                        .and(HALL.ID.notEqual(id))
+        );
+    }
+
     public void delete(Hall hall) {
         dsl.deleteFrom(HALL)
                 .where(HALL.ID.eq(hall.getId()))

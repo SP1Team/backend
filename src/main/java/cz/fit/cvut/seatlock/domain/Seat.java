@@ -25,4 +25,9 @@ public class Seat {
     private Hall hall;
 
     private List<Ticket> tickets = new ArrayList<>();
+
+    public Seat(int rowNumber, int seatNumber) {
+        this.rowNumber = rowNumber;
+        this.seatNumber = seatNumber;
+    }
 }
