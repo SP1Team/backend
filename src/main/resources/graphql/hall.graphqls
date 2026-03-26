@@ -15,6 +15,10 @@ input HallInput{
     seats: [RowConfig]
 }
 
+extend type Query{
+    getAllHalls : [Hall]
+}
+
 extend type Mutation{
     createHall(input: HallInput!): Hall
     deleteHall(id: ID!): Boolean

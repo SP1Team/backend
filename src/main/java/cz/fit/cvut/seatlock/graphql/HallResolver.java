@@ -6,9 +6,11 @@ import cz.fit.cvut.seatlock.service.HallService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -26,5 +28,10 @@ public class HallResolver {
     @MutationMapping
     public Boolean deleteHall(@Argument UUID id){
         return hallService.deleteHall(id);
+    }
+
+    @QueryMapping
+    public List<Hall> getAllHalls(){
+        return hallService.getAllHalls();
     }
 }
