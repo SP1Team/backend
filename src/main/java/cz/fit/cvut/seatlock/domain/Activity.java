@@ -37,4 +37,15 @@ public class Activity {
     private List<Performer> performers = new ArrayList<>();
 
     private List<Offer> offers = new ArrayList<>();
+
+    public Activity(String name, LocalDate date, LocalTime startTime, LocalTime endTime, String description, ActivityCategory activityCategory, Hall hall, List<Performer> performers) {
+        this.name = name;
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.description = description;
+        this.category = activityCategory;
+        this.hall = hall;
+        this.performers = performers;
+    }
 }

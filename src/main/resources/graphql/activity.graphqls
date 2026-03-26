@@ -1,0 +1,26 @@
+type Activity{
+    id : ID!
+    name : String!
+    date : String!
+    startTime : String!
+    endTime : String!
+    description : String
+    category : ActivityCategory!
+    hall : Hall!
+    performers: [Performer]
+}
+
+input ActivityInput{
+    name : String!
+    date : String!
+    startTime : String!
+    endTime : String!
+    description : String
+    hallId: ID!
+    categoryId: ID!
+    performer : [ID!]
+}
+
+extend type Mutation{
+    createActivity(input : ActivityInput!) : Activity
+}

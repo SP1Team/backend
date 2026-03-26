@@ -2,10 +2,14 @@ package cz.fit.cvut.seatlock.repository;
 
 import cz.fit.cvut.seatlock.domain.Activity;
 import static cz.fit.cvut.seatlock.generated.Tables.*;
+
+import cz.fit.cvut.seatlock.domain.Performer;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,6 +31,12 @@ public class ActivityRepository {
                 .fetchOptionalInto(Activity.class);
     }
 
+    public Optional<Activity> findByName(String name){
+        return dsl.selectFrom(ACTIVITY)
+                .where(ACTIVITY.NAME.eq(name))
+                .fetchOptionalInto(Activity.class);
+    }
+
     public Activity save(Activity activity) {
         var record = dsl.newRecord(ACTIVITY, activity);
 
@@ -45,9 +55,29 @@ public class ActivityRepository {
         return record.into(Activity.class);
     }
 
+    public void savePerformers(UUID activityId, List<Performer> performers) {
+        performers.forEach(performer ->
+                dsl.insertInto(ACTIVITY_PERFORMER)
+                        .set(ACTIVITY_PERFORMER.ACTIVITY_ID, activityId)
+                        .set(ACTIVITY_PERFORMER.PERFORMER_ID, performer.getId())
+                        .execute()
+        );
+    }
+
     public void delete(Activity activity) {
         dsl.deleteFrom(ACTIVITY)
                 .where(ACTIVITY.ID.eq(activity.getId()))
                 .execute();
+    }
+
+    public boolean availableTimeForActivity(UUID hallId, LocalDate date, LocalTime start, LocalTime end){
+        return !dsl.fetchExists(
+                dsl.selectOne()
+                        .from(ACTIVITY)
+                        .where(ACTIVITY.HALL_ID.eq(hallId))
+                        .and(ACTIVITY.DATE.eq(date))
+                        .and(ACTIVITY.START_TIME.lt(end))
+                        .and(ACTIVITY.END_TIME.gt(start))
+        );
     }
 }
