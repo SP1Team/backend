@@ -39,6 +39,12 @@ public class SeatRepository {
         return record.into(Seat.class);
     }
 
+    public void deleteByHallId(UUID hallId){
+        dsl.deleteFrom(SEAT)
+                .where(SEAT.HALL_ID.eq(hallId))
+                .execute();
+    }
+
     public void delete(Seat seat) {
         dsl.deleteFrom(SEAT)
                 .where(SEAT.ID.eq(seat.getId()))

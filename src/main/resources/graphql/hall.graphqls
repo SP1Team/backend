@@ -15,11 +15,19 @@ input HallInput{
     seats: [RowConfig]
 }
 
+input HallUpdateInput {
+    name: String
+    address: String
+    # add seats in future
+}
+
 extend type Query{
     getAllHalls : [Hall]
+    getHallById(id : ID!) : Hall
 }
 
 extend type Mutation{
     createHall(input: HallInput!): Hall
+    updateHall(input : HallUpdateInput!, id : ID!) : Boolean
     deleteHall(id: ID!): Boolean
 }

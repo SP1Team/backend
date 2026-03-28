@@ -30,8 +30,17 @@ public class HallResolver {
         return hallService.deleteHall(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @MutationMapping
+    public Boolean updateHall(@Argument HallDTO input, @Argument UUID id){ return hallService.updateHall(input, id); }
+
     @QueryMapping
     public List<Hall> getAllHalls(){
         return hallService.getAllHalls();
+    }
+
+    @QueryMapping
+    public Hall getHallById(@Argument UUID id){
+        return hallService.getHallById(id);
     }
 }

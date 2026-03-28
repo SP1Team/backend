@@ -27,6 +27,18 @@ public class HallRepository {
                 .fetchOptionalInto(Hall.class);
     }
 
+    public Optional<Hall> findByName(String name){
+        return dsl.selectFrom(HALL)
+                .where(HALL.NAME.eq(name))
+                .fetchOptionalInto(Hall.class);
+    }
+
+    public Optional<Hall> findByAddress(String address){
+        return dsl.selectFrom(HALL)
+                .where(HALL.ADDRESS.eq(address))
+                .fetchOptionalInto(Hall.class);
+    }
+
     public Hall save(Hall hall) {
         var record = dsl.newRecord(HALL, hall);
         if(hall.getId() == null){
@@ -34,20 +46,6 @@ public class HallRepository {
         }
         record.store();
         return record.into(Hall.class);
-    }
-
-    public Boolean existsByName(String name){
-        return dsl.fetchExists(
-                dsl.selectFrom(HALL).where(HALL.NAME.eq(name))
-        );
-    }
-
-    public boolean existsByNameAndIdNot(String name, UUID id) {
-        return dsl.fetchExists(
-                dsl.selectFrom(HALL)
-                        .where(HALL.NAME.eq(name))
-                        .and(HALL.ID.notEqual(id))
-        );
     }
 
     public void delete(Hall hall) {

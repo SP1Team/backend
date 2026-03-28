@@ -20,9 +20,14 @@ public class HallService {
     private final ActivityRepository activityRepository;
 
     public Hall createHall(HallDTO dto){
-        if(hallRepository.existsByName(dto.name())){
+        if(hallRepository.findByName(dto.name()).isPresent()){
             throw new RuntimeException("This name is already occupied");
         }
+
+        if(hallRepository.findByAddress(dto.address()).isPresent()){
+            throw new RuntimeException("This address is already occupied");
+        }
+
         Hall newHall = new Hall(dto.name(), dto.address());
         dto.seats().forEach(config -> {
             for(int i = 1; i <= config.countOfSeats(); ++i){
@@ -31,16 +36,46 @@ public class HallService {
                 newHall.getSeats().add(newSeat);
             }
         });
+
         return hallRepository.save(newHall);
     }
 
     public Boolean deleteHall(UUID id) {
         Hall hallToDelete = hallRepository.findById(id).orElseThrow(() -> new RuntimeException("Hall not found"));
+        seatRepository.deleteByHallId(id);
         hallRepository.delete(hallToDelete);
         return true;
     }
 
     public List<Hall> getAllHalls() {
         return hallRepository.findAll();
+    }
+
+    public Hall getHallById(UUID id) {
+        return hallRepository.findById(id).orElseThrow(() -> new RuntimeException("Hall not found"));
+    }
+
+    public Boolean updateHall(HallDTO dto, UUID id) {
+        Hall hallToUpdate = hallRepository.findById(id).orElseThrow(() -> new RuntimeException("Hall not found"));
+        if(dto.name() != null){
+            hallRepository.findByName(dto.name()).ifPresent(found -> {
+                if(!found.getId().equals(id)){
+                    throw new RuntimeException("Hall with this name already exist");
+                }
+            });
+            hallToUpdate.setName(dto.name());
+        }
+
+        if(dto.address()!= null){
+            hallRepository.findByAddress(dto.address()).ifPresent(found -> {
+                if(!found.getId().equals(id)){
+                    throw new RuntimeException("Hall with this address already exist");
+                }
+            });
+            hallToUpdate.setAddress(dto.address());
+        }
+        // make seats change in future
+        hallRepository.save(hallToUpdate);
+        return true;
     }
 }
