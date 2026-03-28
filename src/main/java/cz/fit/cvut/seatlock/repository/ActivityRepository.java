@@ -70,6 +70,12 @@ public class ActivityRepository {
                 .execute();
     }
 
+    public void deletePerformerFromActivities(UUID performerId) {
+        dsl.deleteFrom(ACTIVITY_PERFORMER)
+                .where(ACTIVITY_PERFORMER.PERFORMER_ID.eq(performerId))
+                .execute();
+    }
+
     public void delete(Activity activity) {
         dsl.deleteFrom(ACTIVITY)
                 .where(ACTIVITY.ID.eq(activity.getId()))

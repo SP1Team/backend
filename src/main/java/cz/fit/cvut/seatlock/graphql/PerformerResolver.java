@@ -6,8 +6,12 @@ import cz.fit.cvut.seatlock.service.PerformerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+
+import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
@@ -18,5 +22,27 @@ public class PerformerResolver {
     @MutationMapping
     public Performer createPerformer(@Argument PerformerDTO input){
         return performerService.createPerformer(input);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @MutationMapping
+    public Boolean updatePerformer(@Argument PerformerDTO input, @Argument UUID id){
+        return performerService.updatePerformer(input, id);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @MutationMapping
+    public Boolean deletePerformer(@Argument UUID id){
+        return performerService.deletePerformer(id);
+    }
+
+    @QueryMapping
+    public List<Performer> getAllPerformers(){
+        return performerService.getAllPerformers();
+    }
+
+    @QueryMapping
+    public Performer getPerformerById(@Argument UUID id){
+        return performerService.getPerformerById(id);
     }
 }

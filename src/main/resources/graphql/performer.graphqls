@@ -9,6 +9,18 @@ input PerformerInput{
     description : String
 }
 
+input PerformerUpdateInput{
+    name : String
+    description : String
+}
+
+extend type Query{
+    getAllPerformers : [Performer]
+    getPerformerById(id : ID!) : Performer
+}
+
 extend type Mutation{
     createPerformer(input : PerformerInput!) : Performer
+    updatePerformer(input : PerformerUpdateInput!, id : ID!) : Boolean
+    deletePerformer(id : ID!) : Boolean
 }
