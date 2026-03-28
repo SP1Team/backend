@@ -21,6 +21,24 @@ input ActivityInput{
     performer : [ID!]
 }
 
+input ActivityUpdateInput{
+    name : String
+    date : String
+    startTime : String
+    endTime : String
+    description : String
+    hallId: ID
+    categoryId: ID
+    performer : [ID]
+}
+
+extend type Query{
+    getAllActivities : [Activity]
+    getActivityById(id : ID!) : Activity
+}
+
 extend type Mutation{
     createActivity(input : ActivityInput!) : Activity
+    deleteActivity(id : ID!) : Boolean
+    updateActivity(input : ActivityUpdateInput!, id : ID!) : Boolean
 }

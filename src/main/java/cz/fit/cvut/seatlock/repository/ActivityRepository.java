@@ -31,7 +31,7 @@ public class ActivityRepository {
                 .fetchOptionalInto(Activity.class);
     }
 
-    public Optional<Activity> findByName(String name){
+    public Optional<Activity> findByName(String name) {
         return dsl.selectFrom(ACTIVITY)
                 .where(ACTIVITY.NAME.eq(name))
                 .fetchOptionalInto(Activity.class);
@@ -56,12 +56,18 @@ public class ActivityRepository {
     }
 
     public void savePerformers(UUID activityId, List<Performer> performers) {
-        performers.forEach(performer ->
-                dsl.insertInto(ACTIVITY_PERFORMER)
+        var batch = performers.stream()
+                .map(performer -> dsl.insertInto(ACTIVITY_PERFORMER)
                         .set(ACTIVITY_PERFORMER.ACTIVITY_ID, activityId)
-                        .set(ACTIVITY_PERFORMER.PERFORMER_ID, performer.getId())
-                        .execute()
-        );
+                        .set(ACTIVITY_PERFORMER.PERFORMER_ID, performer.getId()))
+                .toList();
+        dsl.batch(batch).execute();
+    }
+
+    public void deletePerformers(UUID activityId) {
+        dsl.deleteFrom(ACTIVITY_PERFORMER)
+                .where(ACTIVITY_PERFORMER.ACTIVITY_ID.eq(activityId))
+                .execute();
     }
 
     public void delete(Activity activity) {
@@ -70,14 +76,16 @@ public class ActivityRepository {
                 .execute();
     }
 
-    public boolean availableTimeForActivity(UUID hallId, LocalDate date, LocalTime start, LocalTime end){
-        return !dsl.fetchExists(
-                dsl.selectOne()
-                        .from(ACTIVITY)
-                        .where(ACTIVITY.HALL_ID.eq(hallId))
-                        .and(ACTIVITY.DATE.eq(date))
-                        .and(ACTIVITY.START_TIME.lt(end))
-                        .and(ACTIVITY.END_TIME.gt(start))
-        );
+    public boolean availableTimeForActivity(UUID hallId, LocalDate date, LocalTime start, LocalTime end, UUID excludeId) {
+        var condition = ACTIVITY.HALL_ID.eq(hallId)
+                .and(ACTIVITY.DATE.eq(date))
+                .and(ACTIVITY.START_TIME.lt(end))
+                .and(ACTIVITY.END_TIME.gt(start));
+
+        if (excludeId != null) {
+            condition = condition.and(ACTIVITY.ID.ne(excludeId));
+        }
+
+        return !dsl.fetchExists(dsl.selectOne().from(ACTIVITY).where(condition));
     }
 }
