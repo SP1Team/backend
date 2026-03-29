@@ -36,7 +36,7 @@ public class PerformerResolver {
         return performerService.deletePerformer(id);
     }
 
-    @QueryMapping
+    @QueryMapping // todo change List to Page<Performer>
     public List<Performer> getAllPerformers(){
         return performerService.getAllPerformers();
     }

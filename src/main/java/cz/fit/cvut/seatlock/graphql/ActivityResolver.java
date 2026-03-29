@@ -36,7 +36,7 @@ public class ActivityResolver {
         return activityService.updateActivity(input, id);
     }
 
-    @QueryMapping
+    @QueryMapping // todo change List to Page<Activity>
     public List<Activity> getAllActivities() {
         return activityService.getAllActivities();
     }
