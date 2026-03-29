@@ -24,13 +24,13 @@ public class ActivityResolver {
         return activityService.createActivity(input);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ORGANIZATION')")
     @MutationMapping
     public Boolean deleteActivity(@Argument UUID id) {
         return activityService.deleteActivity(id);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ORGANIZATION')")
     @MutationMapping
     public Boolean updateActivity(@Argument ActivityDTO input, @Argument UUID id) {
         return activityService.updateActivity(input, id);
