@@ -24,13 +24,13 @@ public class PerformerResolver {
         return performerService.createPerformer(input);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ORGANIZATION')")
     @MutationMapping
     public Boolean updatePerformer(@Argument PerformerDTO input, @Argument UUID id){
         return performerService.updatePerformer(input, id);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ORGANIZATION')")
     @MutationMapping
     public Boolean deletePerformer(@Argument UUID id){
         return performerService.deletePerformer(id);
