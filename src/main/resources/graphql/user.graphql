@@ -1,0 +1,14 @@
+type Query {
+    me: User
+}
+
+type Mutation {
+    approveOrganizer(userId: ID!): Boolean
+}
+
+type User {
+    id: ID
+    username: String
+    email: String
+    role: String
+}
