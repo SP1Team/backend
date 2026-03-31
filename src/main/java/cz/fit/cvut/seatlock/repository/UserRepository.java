@@ -38,4 +38,14 @@ public class UserRepository {
         record.store();
         return record.into(User.class);
     }
+
+    public boolean updateRoleToOrganization(UUID userId) {
+        // SQL: UPDATE app_user SET role = 'ROLE_ORGANIZATION' WHERE id = '...'
+        int rowsUpdated = dsl.update(APP_USER)
+                .set(APP_USER.ROLE, "ROLE_ORGANIZATION")
+                .where(APP_USER.ID.eq(userId))
+                .execute();
+
+        return rowsUpdated > 0;
+    }
 }

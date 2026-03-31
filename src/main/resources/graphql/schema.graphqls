@@ -1,7 +1,14 @@
-type Query{
-    _dummy: String
+type Query {
+    me: User
 }
 
-type Mutation{
-    _dummy: String
+type Mutation {
+    approveOrganizer(userId: ID!): Boolean
+}
+
+type User {
+    id: ID
+    username: String
+    email: String
+    role: String
 }

@@ -42,7 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/graphiql", "/graphiql/**", "/vendor/**").permitAll()
-                        .requestMatchers("/graphql").authenticated()
+                        .requestMatchers("/graphql").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
