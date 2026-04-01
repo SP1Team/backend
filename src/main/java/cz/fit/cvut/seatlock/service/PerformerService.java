@@ -2,12 +2,18 @@ package cz.fit.cvut.seatlock.service;
 
 import cz.fit.cvut.seatlock.domain.Performer;
 import cz.fit.cvut.seatlock.dto.PerformerDTO;
+import cz.fit.cvut.seatlock.es_documents.PerformerDocument;
+import cz.fit.cvut.seatlock.es_documents.PerformerSearchRepository;
+import cz.fit.cvut.seatlock.events.PerformerEventDTO;
 import cz.fit.cvut.seatlock.repository.ActivityRepository;
 import cz.fit.cvut.seatlock.repository.PerformerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+
 import java.util.UUID;
 
 @Service
@@ -15,10 +21,18 @@ import java.util.UUID;
 public class PerformerService {
     private final PerformerRepository performerRepository;
     private final ActivityRepository activityRepository;
+    private final ApplicationEventPublisher eventPublisher;
+    private final PerformerSearchRepository performerSearchRepository;
 
-    public Performer createPerformer(PerformerDTO input) {
+    public Boolean createPerformer(PerformerDTO input) {
         Performer performer = new Performer(input.name(), input.description());
-        return performerRepository.save(performer);
+        Performer saved = performerRepository.save(performer);
+
+        eventPublisher.publishEvent(new PerformerEventDTO(
+                saved.getId(),
+                saved.getName()
+        ));
+        return true;
     }
 
     public Boolean updatePerformer(PerformerDTO dto, UUID id) {
@@ -33,6 +47,11 @@ public class PerformerService {
         }
 
         performerRepository.save(performerToUpdate);
+
+        eventPublisher.publishEvent(new PerformerEventDTO(
+                id,
+                performerToUpdate.getName()
+        ));
         return true;
     }
 
@@ -40,6 +59,7 @@ public class PerformerService {
         Performer performerToDelete = performerRepository.findById(id).orElseThrow(() -> new RuntimeException("Performer not found"));
         activityRepository.deletePerformerFromActivities(id);
         performerRepository.delete(performerToDelete);
+        performerSearchRepository.deleteById(id.toString());
         return true;
     }
 
@@ -49,5 +69,15 @@ public class PerformerService {
 
     public Performer getPerformerById(UUID id) {
         return performerRepository.findById(id).orElseThrow(() -> new RuntimeException("Performer not found"));
+    }
+
+    public List<Performer> search(String text){
+        List<PerformerDocument> docs = performerSearchRepository.findByName(text);
+
+        List<UUID> ids = docs.stream().map(doc -> UUID.fromString(doc.getId())).toList();
+
+        if(ids.isEmpty()) return new ArrayList<>();
+
+        return performerRepository.findAllByIds(ids);
     }
 }

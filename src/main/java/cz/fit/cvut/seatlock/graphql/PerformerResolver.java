@@ -20,7 +20,7 @@ public class PerformerResolver {
 
     @PreAuthorize("hasRole('ORGANIZATION')")
     @MutationMapping
-    public Performer createPerformer(@Argument PerformerDTO input){
+    public Boolean createPerformer(@Argument PerformerDTO input){
         return performerService.createPerformer(input);
     }
 
@@ -44,5 +44,10 @@ public class PerformerResolver {
     @QueryMapping
     public Performer getPerformerById(@Argument UUID id){
         return performerService.getPerformerById(id);
+    }
+
+    @QueryMapping
+    public List<Performer> search(@Argument String text){
+        return performerService.search(text);
     }
 }
