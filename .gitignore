@@ -29,3 +29,5 @@ temp/
 .env.local
 application-local.properties
 application-local.yml
+/security.env
+/database_prod.env

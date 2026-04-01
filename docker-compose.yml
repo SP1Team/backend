@@ -4,7 +4,7 @@ services:
     container_name: seatlock-db
     restart: always
     env_file:
-      - database.env
+      - database_local.env
     networks:
       - app-network
     ports:
@@ -52,7 +52,7 @@ services:
     build: .
     container_name: seatlock-api
     env_file:
-      - database.env
+      - database_local.env
       - security.env
     ports:
       - "8080:8080"
