@@ -5,8 +5,12 @@ import cz.fit.cvut.seatlock.domain.ActivityCategory;
 import cz.fit.cvut.seatlock.domain.Hall;
 import cz.fit.cvut.seatlock.domain.Performer;
 import cz.fit.cvut.seatlock.dto.ActivityDTO;
+import cz.fit.cvut.seatlock.es_documents.ActivityDocument;
+import cz.fit.cvut.seatlock.es_documents.ActivitySearchRepository;
+import cz.fit.cvut.seatlock.events.ActivityEventDTO;
 import cz.fit.cvut.seatlock.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -22,6 +26,8 @@ public class ActivityService {
     private final ActivityCategoryRepository activityCategoryRepository;
     private final HallRepository hallRepository;
     private final PerformerRepository performerRepository;
+    private final ApplicationEventPublisher eventPublisher;
+    private final ActivitySearchRepository activitySearchRepository;
 
     public Activity createActivity(ActivityDTO dto) {
         if (activityRepository.findByName(dto.name()).isPresent()) {
@@ -47,6 +53,15 @@ public class ActivityService {
             activityRepository.savePerformers(saved.getId(), performers);
         }
 
+        eventPublisher.publishEvent(new ActivityEventDTO(
+                saved.getId(),
+                saved.getName(),
+                saved.getDescription(),
+                activityCategory.getName(),
+                hall.getName(),
+                performers.stream().map(Performer::getName).toList()
+        ));
+
         return saved;
     }
 
@@ -64,6 +79,7 @@ public class ActivityService {
                 .orElseThrow(() -> new RuntimeException("Activity not found"));
         activityRepository.deletePerformers(id);
         activityRepository.delete(activity);
+        activitySearchRepository.deleteById(id.toString());
         return true;
     }
 
@@ -79,7 +95,7 @@ public class ActivityService {
             });
         }
 
-        UUID hallId = dto.hallId() != null ? dto.hallId() : activity.getHall().getId();
+        UUID hallId = dto.hallId() != null ? dto.hallId() : activity.getHallId();
         LocalDate date = dto.date() != null ? dto.date() : activity.getDate();
         LocalTime startTime = dto.startTime() != null ? dto.startTime() : activity.getStartTime();
         LocalTime endTime = dto.endTime() != null ? dto.endTime() : activity.getEndTime();
@@ -88,39 +104,54 @@ public class ActivityService {
             throw new RuntimeException("Hall is not available at this time");
         }
 
-        if (dto.name() != null) {
-            activity.setName(dto.name());
-        }
-        if (dto.date() != null) {
-            activity.setDate(dto.date());
-        }
-        if (dto.startTime() != null) {
-            activity.setStartTime(dto.startTime());
-        }
-        if (dto.endTime() != null) {
-            activity.setEndTime(dto.endTime());
-        }
-        if (dto.description() != null) {
-            activity.setDescription(dto.description());
-        }
-        if (dto.categoryId() != null) {
-            ActivityCategory category = activityCategoryRepository.findById(dto.categoryId()).orElseThrow(() -> new RuntimeException("Category not found"));
-            activity.setCategory(category);
-        }
-        if (dto.hallId() != null) {
-            Hall hall = hallRepository.findById(dto.hallId()).orElseThrow(() -> new RuntimeException("Hall not found"));
-            activity.setHall(hall);
-        }
+        if (dto.name() != null) activity.setName(dto.name());
+        if (dto.date() != null) activity.setDate(dto.date());
+        if (dto.startTime() != null) activity.setStartTime(dto.startTime());
+        if (dto.endTime() != null) activity.setEndTime(dto.endTime());
+        if (dto.description() != null) activity.setDescription(dto.description());
 
+        Hall hall = hallRepository.findById(hallId)
+                .orElseThrow(() -> new RuntimeException("Hall not found"));
+        activity.setHall(hall);
+
+        UUID categoryId = dto.categoryId() != null ? dto.categoryId() : activity.getActivityCategoryId();
+        ActivityCategory category = activityCategoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        activity.setCategory(category);
+
+        List<Performer> performers;
         if (dto.performer() != null) {
             activityRepository.deletePerformers(id);
-            if (!dto.performer().isEmpty()) {
-                List<Performer> performers = performerRepository.findAllByIds(dto.performer());
-                activityRepository.savePerformers(id, performers);
-            }
+            performers = dto.performer().isEmpty()
+                    ? new ArrayList<>()
+                    : performerRepository.findAllByIds(dto.performer());
+            if (!performers.isEmpty()) activityRepository.savePerformers(id, performers);
+        } else {
+            performers = performerRepository.findAllByIds(
+                    activityRepository.findPerformerIdsByActivityId(id)
+            );
         }
 
         activityRepository.save(activity);
+
+        eventPublisher.publishEvent(new ActivityEventDTO(
+                activity.getId(),
+                activity.getName(),
+                activity.getDescription(),
+                category.getName(),
+                hall.getName(),
+                performers.stream().map(Performer::getName).toList()
+        ));
         return true;
+    }
+
+    public List<Activity> search(String text, boolean includePerformers){
+        List<ActivityDocument> docs = includePerformers ? activitySearchRepository.searchByTextWithPerformers(text) : activitySearchRepository.searchByText(text);
+
+        List<UUID> ids = docs.stream().map(doc -> UUID.fromString(doc.getId())).toList();
+
+        if (ids.isEmpty()) return new ArrayList<>();
+
+        return activityRepository.findAllByIds(ids);
     }
 }

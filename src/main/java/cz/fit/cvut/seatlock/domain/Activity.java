@@ -30,6 +30,10 @@ public class Activity {
 
     private String description;
 
+    private UUID hallId;
+
+    private UUID activityCategoryId;
+
     private ActivityCategory category;
 
     private Hall hall;

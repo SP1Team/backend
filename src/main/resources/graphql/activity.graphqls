@@ -35,6 +35,7 @@ input ActivityUpdateInput{
 extend type Query{
     getAllActivities : [Activity]
     getActivityById(id : ID!) : Activity
+    searchActivities(text : String!, includePerformers : Boolean!) : [Activity]
 }
 
 extend type Mutation{

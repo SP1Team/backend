@@ -45,4 +45,9 @@ public class ActivityResolver {
     public Activity getActivityById(@Argument UUID id) {
         return activityService.getActivityById(id);
     }
+
+    @QueryMapping
+    public List<Activity> searchActivities(@Argument String text, @Argument Boolean includePerformers){
+        return activityService.search(text, includePerformers);
+    }
 }

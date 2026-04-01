@@ -94,4 +94,17 @@ public class ActivityRepository {
 
         return !dsl.fetchExists(dsl.selectOne().from(ACTIVITY).where(condition));
     }
+
+    public List<UUID> findPerformerIdsByActivityId(UUID activityId) {
+        return dsl.select(ACTIVITY_PERFORMER.PERFORMER_ID)
+                .from(ACTIVITY_PERFORMER)
+                .where(ACTIVITY_PERFORMER.ACTIVITY_ID.eq(activityId))
+                .fetchInto(UUID.class);
+    }
+
+    public List<Activity> findAllByIds(List<UUID> ids) {
+        return dsl.selectFrom(ACTIVITY)
+                .where(ACTIVITY.ID.in(ids))
+                .fetchInto(Activity.class);
+    }
 }
