@@ -39,7 +39,7 @@ extend type Query{
 }
 
 extend type Mutation{
-    createActivity(input : ActivityInput!) : Activity
+    createActivity(input : ActivityInput!) : Boolean
     deleteActivity(id : ID!) : Boolean
     updateActivity(input : ActivityUpdateInput!, id : ID!) : Boolean
 }

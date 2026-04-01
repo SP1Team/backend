@@ -29,7 +29,7 @@ public class ActivityService {
     private final ApplicationEventPublisher eventPublisher;
     private final ActivitySearchRepository activitySearchRepository;
 
-    public Activity createActivity(ActivityDTO dto) {
+    public Boolean createActivity(ActivityDTO dto) {
         if (activityRepository.findByName(dto.name()).isPresent()) {
             throw new RuntimeException("Activity with this name already exists");
         }
@@ -62,7 +62,7 @@ public class ActivityService {
                 performers.stream().map(Performer::getName).toList()
         ));
 
-        return saved;
+        return true;
     }
 
     public List<Activity> getAllActivities() {

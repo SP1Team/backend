@@ -20,7 +20,7 @@ public class ActivityResolver {
 
     @PreAuthorize("hasRole('ORGANIZATION')")
     @MutationMapping
-    public Activity createActivity(@Argument ActivityDTO input) {
+    public Boolean createActivity(@Argument ActivityDTO input) {
         return activityService.createActivity(input);
     }
 
