@@ -37,4 +37,13 @@ public class ActivityDocument {
 
     @Field(type = FieldType.Text, analyzer = "standard")
     private List<String> performerNames;
+
+    public ActivityDocument(String id, String name, String description, String activityCategory, String hall, List<String> performerNames) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.activityCategory = activityCategory;
+        this.hall = hall;
+        this.performerNames = performerNames;
+    }
 }
