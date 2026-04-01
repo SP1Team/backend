@@ -20,6 +20,11 @@ spring:
           max-active: 8
           max-idle: 8
 
+redisson:
+  single-server-config:
+    address: "redis://${SPRING_DATA_REDIS_HOST:localhost}:${SPRING_DATA_REDIS_PORT:6379}"
+  lazy-initialization: true
+
   elasticsearch:
     uris: ${SPRING_ELASTICSEARCH_URIS}
     socket-timeout: 10s
