@@ -73,6 +73,11 @@ public class Hall extends TableImpl<HallRecord> {
      */
     public final TableField<HallRecord, String> ADDRESS = createField(DSL.name("address"), SQLDataType.VARCHAR(500).nullable(false), this, "");
 
+    /**
+     * The column <code>public.hall.city</code>.
+     */
+    public final TableField<HallRecord, String> CITY = createField(DSL.name("city"), SQLDataType.VARCHAR(100).nullable(false), this, "");
+
     private Hall(Name alias, Table<HallRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
     }

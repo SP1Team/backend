@@ -2,6 +2,7 @@ type Hall{
     id: ID!
     name: String!
     address: String!
+    city: String!
 }
 
 input RowConfig{
@@ -12,12 +13,14 @@ input RowConfig{
 input HallInput{
     name : String!
     address: String!
+    city: String!
     seats: [RowConfig]
 }
 
 input HallUpdateInput {
     name: String
     address: String
+    city: String
     # add seats in future
 }
 

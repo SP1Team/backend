@@ -22,12 +22,15 @@ public class Hall {
 
     private String address;
 
+    private String city;
+
     private List<Seat> seats = new ArrayList<>();
 
     private List<Activity> activities = new ArrayList<>();
 
-    public Hall(String name, String address) {
+    public Hall(String name, String address, String city) {
         this.name = name;
         this.address = address;
+        this.city = city;
     }
 }

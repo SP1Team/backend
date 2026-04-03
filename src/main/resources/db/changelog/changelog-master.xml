@@ -16,5 +16,6 @@
     <include file="db/changelog/v1.0/10-create-ticket.xml"/>
     <include file="db/changelog/v2.0/01-update-hall.xml"/>
     <include file="db/changelog/v2.0/02-update-activity.xml"/>
+    <include file="db/changelog/v2.0/03-update-hall.xml"/>
 
 </databaseChangeLog>

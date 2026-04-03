@@ -62,6 +62,20 @@ public class HallRecord extends UpdatableRecordImpl<HallRecord> {
         return (String) get(2);
     }
 
+    /**
+     * Setter for <code>public.hall.city</code>.
+     */
+    public void setCity(String value) {
+        set(3, value);
+    }
+
+    /**
+     * Getter for <code>public.hall.city</code>.
+     */
+    public String getCity() {
+        return (String) get(3);
+    }
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -85,12 +99,13 @@ public class HallRecord extends UpdatableRecordImpl<HallRecord> {
     /**
      * Create a detached, initialised HallRecord
      */
-    public HallRecord(UUID id, String name, String address) {
+    public HallRecord(UUID id, String name, String address, String city) {
         super(Hall.HALL);
 
         setId(id);
         setName(name);
         setAddress(address);
+        setCity(city);
         resetChangedOnNotNull();
     }
 }

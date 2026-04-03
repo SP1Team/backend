@@ -3,7 +3,6 @@ package cz.fit.cvut.seatlock.service;
 import cz.fit.cvut.seatlock.domain.Hall;
 import cz.fit.cvut.seatlock.domain.Seat;
 import cz.fit.cvut.seatlock.dto.HallDTO;
-import cz.fit.cvut.seatlock.repository.ActivityRepository;
 import cz.fit.cvut.seatlock.repository.HallRepository;
 import cz.fit.cvut.seatlock.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import java.util.UUID;
 public class HallService {
     private final HallRepository hallRepository;
     private final SeatRepository seatRepository;
-    private final ActivityRepository activityRepository;
 
     public Hall createHall(HallDTO dto){
         if(hallRepository.findByName(dto.name()).isPresent()){
@@ -28,7 +26,7 @@ public class HallService {
             throw new RuntimeException("This address is already occupied");
         }
 
-        Hall newHall = new Hall(dto.name(), dto.address());
+        Hall newHall = new Hall(dto.name(), dto.address(), dto.city());
         dto.seats().forEach(config -> {
             for(int i = 1; i <= config.countOfSeats(); ++i){
                 Seat newSeat = new Seat(config.rowNumber(), i);
@@ -73,6 +71,10 @@ public class HallService {
                 }
             });
             hallToUpdate.setAddress(dto.address());
+        }
+
+        if(dto.city() != null){
+            hallToUpdate.setCity(dto.city());
         }
         // make seats change in future
         hallRepository.save(hallToUpdate);
