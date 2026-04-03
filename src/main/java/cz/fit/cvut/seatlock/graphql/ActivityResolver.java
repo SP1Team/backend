@@ -2,6 +2,7 @@ package cz.fit.cvut.seatlock.graphql;
 
 import cz.fit.cvut.seatlock.domain.Activity;
 import cz.fit.cvut.seatlock.dto.ActivityDTO;
+import cz.fit.cvut.seatlock.dto.SearchInputDTO;
 import cz.fit.cvut.seatlock.service.ActivityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -47,7 +48,7 @@ public class ActivityResolver {
     }
 
     @QueryMapping
-    public List<Activity> searchActivities(@Argument String text, @Argument Boolean includePerformers){
-        return activityService.search(text, includePerformers);
+    public List<Activity> searchActivities(@Argument SearchInputDTO input){
+        return activityService.search(input);
     }
 }

@@ -5,7 +5,9 @@ import static cz.fit.cvut.seatlock.generated.Tables.*;
 
 import cz.fit.cvut.seatlock.domain.Performer;
 import lombok.RequiredArgsConstructor;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -102,9 +104,30 @@ public class ActivityRepository {
                 .fetchInto(UUID.class);
     }
 
-    public List<Activity> findAllByIds(List<UUID> ids) {
-        return dsl.selectFrom(ACTIVITY)
-                .where(ACTIVITY.ID.in(ids))
+    public List<Activity> findWithFilters(List<UUID> ids, LocalDate date, LocalTime startTime, String category, String city){
+        Condition condition = DSL.trueCondition();
+
+        if(ids != null){
+            condition = condition.and(ACTIVITY.ID.in(ids));
+        }
+        if(date != null){
+            condition = condition.and(ACTIVITY.DATE.eq(date));
+        }
+        if(startTime != null){
+            condition = condition.and(ACTIVITY.START_TIME.greaterOrEqual(startTime));
+        }
+        if(category != null){
+            condition = condition.and(ACTIVITY_CATEGORY.NAME.eq(category));
+        }
+        if(city != null){
+            condition = condition.and(HALL.CITY.eq(city));
+        }
+
+        return dsl.select(ACTIVITY.fields())
+                .from(ACTIVITY)
+                .join(HALL).on(ACTIVITY.HALL_ID.eq(HALL.ID))
+                .join(ACTIVITY_CATEGORY).on(ACTIVITY.ACTIVITY_CATEGORY_ID.eq(ACTIVITY_CATEGORY.ID))
+                .where(condition)
                 .fetchInto(Activity.class);
     }
 }

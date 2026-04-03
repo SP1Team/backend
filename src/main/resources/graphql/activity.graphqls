@@ -32,10 +32,18 @@ input ActivityUpdateInput{
     performer : [ID]
 }
 
+input SearchInput{
+    text : String
+    date : String
+    startTime : String
+    category : String
+    city : String
+}
+
 extend type Query{
     getAllActivities : [Activity]
     getActivityById(id : ID!) : Activity
-    searchActivities(text : String!, includePerformers : Boolean!) : [Activity]
+    searchActivities(input: SearchInput!) : [Activity]
 }
 
 extend type Mutation{

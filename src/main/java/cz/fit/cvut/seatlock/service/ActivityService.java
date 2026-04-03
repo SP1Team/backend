@@ -5,6 +5,7 @@ import cz.fit.cvut.seatlock.domain.ActivityCategory;
 import cz.fit.cvut.seatlock.domain.Hall;
 import cz.fit.cvut.seatlock.domain.Performer;
 import cz.fit.cvut.seatlock.dto.ActivityDTO;
+import cz.fit.cvut.seatlock.dto.SearchInputDTO;
 import cz.fit.cvut.seatlock.es_documents.ActivityDocument;
 import cz.fit.cvut.seatlock.es_documents.ActivitySearchRepository;
 import cz.fit.cvut.seatlock.events.ActivityEventDTO;
@@ -57,8 +58,6 @@ public class ActivityService {
                 saved.getId(),
                 saved.getName(),
                 saved.getDescription(),
-                activityCategory.getName(),
-                hall.getName(),
                 performers.stream().map(Performer::getName).toList()
         ));
 
@@ -138,20 +137,21 @@ public class ActivityService {
                 activity.getId(),
                 activity.getName(),
                 activity.getDescription(),
-                category.getName(),
-                hall.getName(),
                 performers.stream().map(Performer::getName).toList()
         ));
         return true;
     }
 
-    public List<Activity> search(String text, boolean includePerformers){
-        List<ActivityDocument> docs = includePerformers ? activitySearchRepository.searchByTextWithPerformers(text) : activitySearchRepository.searchByText(text);
-
+    public List<Activity> search(SearchInputDTO dto){
+        if(dto.text() == null || dto.text().isBlank()){
+            return activityRepository.findWithFilters(null, dto.date(), dto.startTime(), dto.category(), dto.city());
+        }
+        List<ActivityDocument> docs = activitySearchRepository.searchByTextWithPerformers(dto.text());
         List<UUID> ids = docs.stream().map(doc -> UUID.fromString(doc.getId())).toList();
-
-        if (ids.isEmpty()) return new ArrayList<>();
-
-        return activityRepository.findAllByIds(ids);
+        if(ids.isEmpty()){
+            return new ArrayList<>();
+        }else{
+            return activityRepository.findWithFilters(ids, dto.date(), dto.startTime(), dto.category(), dto.city());
+        }
     }
 }
