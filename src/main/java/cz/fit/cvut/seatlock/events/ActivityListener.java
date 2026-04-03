@@ -14,7 +14,7 @@ public class ActivityListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void createDocument(ActivityEventDTO event){
-        ActivityDocument newDocument = new ActivityDocument(event.activityId().toString(), event.name(), event.description(), event.categoryName(), event.hallName(), event.performerNames());
+        ActivityDocument newDocument = new ActivityDocument(event.activityId().toString(), event.name(), event.description(), event.performerNames());
         activitySearchRepository.save(newDocument);
     }
 }

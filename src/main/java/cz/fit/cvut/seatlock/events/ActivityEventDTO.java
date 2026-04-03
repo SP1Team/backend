@@ -7,8 +7,6 @@ public record ActivityEventDTO(
         UUID activityId,
         String name,
         String description,
-        String categoryName,
-        String hallName,
         List<String> performerNames
 ) {
 }
