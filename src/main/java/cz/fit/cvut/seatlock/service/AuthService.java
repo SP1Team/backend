@@ -4,6 +4,8 @@ import cz.fit.cvut.seatlock.domain.User;
 import cz.fit.cvut.seatlock.domain.enums.Role;
 import cz.fit.cvut.seatlock.dto.LoginDTO;
 import cz.fit.cvut.seatlock.dto.RegisterDTO;
+import cz.fit.cvut.seatlock.exception.InvalidCredentialsException;
+import cz.fit.cvut.seatlock.exception.UserAlreadyExistsException;
 import cz.fit.cvut.seatlock.repository.UserRepository;
 import cz.fit.cvut.seatlock.security.JWTUtils;
 import cz.fit.cvut.seatlock.security.SeatlockUserDetailsService;
@@ -22,11 +24,11 @@ public class AuthService {
     public void register(RegisterDTO registerDTO) {
         userRepository.findUserByEmail(registerDTO.email())
                 .ifPresent(user -> {
-                    throw new RuntimeException("User already exists");
+                    throw new UserAlreadyExistsException("User with this email already exists");
                 });
         userRepository.findUserByPhoneNumber(registerDTO.phoneNumber())
                 .ifPresent(user -> {
-                    throw new RuntimeException("Phone number is already used");
+                    throw new UserAlreadyExistsException("Phone number is already used");
                 });
         User newUser = new User(registerDTO.email(), passwordEncoder.encode(registerDTO.password()), registerDTO.name(),
                 registerDTO.surname(), registerDTO.countryCode(), registerDTO.phoneNumber());
@@ -37,7 +39,7 @@ public class AuthService {
     public String login(LoginDTO loginDTO) {
         var userDetails = seatlockUserDetailsService.loadUserByUsername(loginDTO.email());
         if(!passwordEncoder.matches(loginDTO.password(), userDetails.getPassword())){
-            throw new RuntimeException("Invalid credentials");
+            throw new InvalidCredentialsException("Invalid credentials");
         }
         return jwtUtils.generateToken(userDetails);
     }

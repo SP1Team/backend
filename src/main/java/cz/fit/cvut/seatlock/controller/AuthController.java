@@ -1,8 +1,8 @@
 package cz.fit.cvut.seatlock.controller;
 
-
 import cz.fit.cvut.seatlock.dto.LoginDTO;
 import cz.fit.cvut.seatlock.dto.RegisterDTO;
+import cz.fit.cvut.seatlock.dto.TokenResponseDTO;
 import cz.fit.cvut.seatlock.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,7 +36,7 @@ public class AuthController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "User registered successfully"),
-            @ApiResponse(responseCode = "400", description = "Email or phone number already in use"),
+            @ApiResponse(responseCode = "409", description = "Email or phone number already in use"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping("/register")
@@ -86,6 +86,32 @@ public class AuthController {
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(
+            summary = "Login with token response",
+            description = "Returns JWT token in JSON body",
+            tags = {"Authentication"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Login successful, token returned in body",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TokenResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PostMapping("/login-token")
+    public ResponseEntity<TokenResponseDTO> loginWithToken(
+            @RequestBody(
+                    description = "User login credentials",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = LoginDTO.class)
+                    )
+            )
+            @org.springframework.web.bind.annotation.RequestBody LoginDTO loginDTO) {
+        var token = authService.login(loginDTO);
+        return ResponseEntity.ok(new TokenResponseDTO(token));
     }
 
     @Operation(
