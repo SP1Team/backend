@@ -28,14 +28,18 @@ services:
     command: redis-server --save 60 1 --loglevel warning
     volumes:
       - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.26
     container_name: seatlock-elastic
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:
@@ -46,7 +50,12 @@ services:
     ports:
       - "9200:9200"
     volumes:
-      - elasticdata:/usr/share/elasticsearch/data
+      - elasticdata_v2:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   app:
     build: .
@@ -62,9 +71,9 @@ services:
       db:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
       elasticsearch:
-        condition: service_started
+        condition: service_healthy
 
 networks:
   app-network:
@@ -73,4 +82,4 @@ networks:
 volumes:
   pgdata:
   redisdata:
-  elasticdata:
+  elasticdata_v2:
