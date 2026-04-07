@@ -1,6 +1,7 @@
 package cz.fit.cvut.seatlock.service;
 
 import cz.fit.cvut.seatlock.domain.User;
+import cz.fit.cvut.seatlock.domain.enums.Role;
 import cz.fit.cvut.seatlock.dto.LoginDTO;
 import cz.fit.cvut.seatlock.dto.RegisterDTO;
 import cz.fit.cvut.seatlock.repository.UserRepository;
@@ -27,14 +28,16 @@ public class AuthService {
                 .ifPresent(user -> {
                     throw new RuntimeException("Phone number is already used");
                 });
-        userRepository.save(new User(registerDTO.email(), passwordEncoder.encode(registerDTO.password()), registerDTO.name(),
-                registerDTO.surname(), registerDTO.countryCode(), registerDTO.phoneNumber()));
+        User newUser = new User(registerDTO.email(), passwordEncoder.encode(registerDTO.password()), registerDTO.name(),
+                registerDTO.surname(), registerDTO.countryCode(), registerDTO.phoneNumber());
+        newUser.setRole(Role.ROLE_CUSTOMER);
+        userRepository.save(newUser);
     }
 
     public String login(LoginDTO loginDTO) {
         var userDetails = seatlockUserDetailsService.loadUserByUsername(loginDTO.email());
-        if(!userDetails.getPassword().equals(passwordEncoder.encode(loginDTO.password()))){
-            throw new RuntimeException();
+        if(!passwordEncoder.matches(loginDTO.password(), userDetails.getPassword())){
+            throw new RuntimeException("Invalid credentials");
         }
         return jwtUtils.generateToken(userDetails);
     }

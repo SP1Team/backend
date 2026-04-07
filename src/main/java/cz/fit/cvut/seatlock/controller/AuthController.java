@@ -77,7 +77,7 @@ public class AuthController {
             @org.springframework.web.bind.annotation.RequestBody LoginDTO loginDTO,
             HttpServletResponse response) {
         var token = authService.login(loginDTO);
-        ResponseCookie cookie = ResponseCookie.from("token", token)
+        ResponseCookie cookie = ResponseCookie.from("accessToken", token)
                 .httpOnly(true)
                 .secure(false)
                 .path("/")
@@ -99,7 +99,7 @@ public class AuthController {
     })
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
-        ResponseCookie cookie = ResponseCookie.from("token", "")
+        ResponseCookie cookie = ResponseCookie.from("accessToken", "")
                 .httpOnly(true)
                 .secure(false)
                 .path("/")
