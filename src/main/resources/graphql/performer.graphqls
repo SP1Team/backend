@@ -4,6 +4,13 @@ type Performer{
     description : String
 }
 
+type PerformerPage {
+    content: [Performer!]!
+    totalElements: Int!
+    totalPages: Int!
+    pageNumber: Int!
+}
+
 input PerformerInput{
     name : String!
     description : String
@@ -15,7 +22,7 @@ input PerformerUpdateInput{
 }
 
 extend type Query{
-    getAllPerformers : [Performer]
+    getAllPerformers(input: PageInput!) : PerformerPage
     getPerformerById(id : ID!) : Performer
     search(text : String!) : [Performer]
 }

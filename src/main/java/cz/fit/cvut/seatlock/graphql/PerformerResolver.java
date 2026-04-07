@@ -1,7 +1,9 @@
 package cz.fit.cvut.seatlock.graphql;
 
 import cz.fit.cvut.seatlock.domain.Performer;
+import cz.fit.cvut.seatlock.dto.PageInput;
 import cz.fit.cvut.seatlock.dto.PerformerDTO;
+import cz.fit.cvut.seatlock.dto.PerformerPage;
 import cz.fit.cvut.seatlock.service.PerformerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -36,9 +38,9 @@ public class PerformerResolver {
         return performerService.deletePerformer(id);
     }
 
-    @QueryMapping // todo change List to Page<Performer>
-    public List<Performer> getAllPerformers(){
-        return performerService.getAllPerformers();
+    @QueryMapping
+    public PerformerPage getAllPerformers(@Argument PageInput input){
+        return performerService.getAllPerformers(input);
     }
 
     @QueryMapping

@@ -24,6 +24,18 @@ public class PerformerRepository {
                 .fetchInto(Performer.class);
     }
 
+    public List<Performer> findAll(int page, int size) {
+        return dsl.selectFrom(PERFORMER)
+                .orderBy(PERFORMER.NAME.asc())
+                .limit(size)
+                .offset((long) page * size)
+                .fetchInto(Performer.class);
+    }
+
+    public long count() {
+        return dsl.fetchCount(PERFORMER);
+    }
+
     public Optional<Performer> findById(UUID id) {
         return dsl.selectFrom(PERFORMER)
                 .where(PERFORMER.ID.eq(id))
