@@ -27,6 +27,18 @@ public class ActivityRepository {
                 .fetchInto(Activity.class);
     }
 
+    public List<Activity> findAll(int page, int size) {
+        return dsl.selectFrom(ACTIVITY)
+                .orderBy(ACTIVITY.DATE.asc(), ACTIVITY.START_TIME.asc())
+                .limit(size)
+                .offset((long) page * size)
+                .fetchInto(Activity.class);
+    }
+
+    public long count() {
+        return dsl.fetchCount(ACTIVITY);
+    }
+
     public Optional<Activity> findById(UUID id) {
         return dsl.selectFrom(ACTIVITY)
                 .where(ACTIVITY.ID.eq(id))

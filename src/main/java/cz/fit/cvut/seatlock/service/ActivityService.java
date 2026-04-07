@@ -5,6 +5,8 @@ import cz.fit.cvut.seatlock.domain.ActivityCategory;
 import cz.fit.cvut.seatlock.domain.Hall;
 import cz.fit.cvut.seatlock.domain.Performer;
 import cz.fit.cvut.seatlock.dto.ActivityDTO;
+import cz.fit.cvut.seatlock.dto.ActivityPage;
+import cz.fit.cvut.seatlock.dto.PageInput;
 import cz.fit.cvut.seatlock.dto.SearchInputDTO;
 import cz.fit.cvut.seatlock.es_documents.ActivityDocument;
 import cz.fit.cvut.seatlock.es_documents.ActivitySearchRepository;
@@ -64,8 +66,11 @@ public class ActivityService {
         return true;
     }
 
-    public List<Activity> getAllActivities() {
-        return activityRepository.findAll();
+    public ActivityPage getAllActivities(PageInput pageInput) {
+        long total = activityRepository.count();
+        List<Activity> content = activityRepository.findAll(pageInput.page(), pageInput.size());
+        int totalPages = (int) Math.ceil((double) total / pageInput.size());
+        return new ActivityPage(content, total, totalPages, pageInput.page());
     }
 
     public Activity getActivityById(UUID id) {

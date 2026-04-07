@@ -10,6 +10,13 @@ type Activity{
     performers: [Performer]
 }
 
+type ActivityPage {
+    content: [Activity!]!
+    totalElements: Int!
+    totalPages: Int!
+    pageNumber: Int!
+}
+
 input ActivityInput{
     name : String!
     date : String!
@@ -41,7 +48,7 @@ input SearchInput{
 }
 
 extend type Query{
-    getAllActivities : [Activity]
+    getAllActivities(input: PageInput!) : ActivityPage
     getActivityById(id : ID!) : Activity
     searchActivities(input: SearchInput!) : [Activity]
 }
