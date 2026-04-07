@@ -22,7 +22,7 @@ input PerformerUpdateInput{
 }
 
 extend type Query{
-    getAllPerformers(input: PageInput!) : PerformerPage
+    getAllPerformers(page: Int!, size: Int!) : PerformerPage
     getPerformerById(id : ID!) : Performer
     search(text : String!) : [Performer]
 }

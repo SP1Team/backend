@@ -1,7 +1,6 @@
 package cz.fit.cvut.seatlock.service;
 
 import cz.fit.cvut.seatlock.domain.Performer;
-import cz.fit.cvut.seatlock.dto.PageInput;
 import cz.fit.cvut.seatlock.dto.PerformerDTO;
 import cz.fit.cvut.seatlock.dto.PerformerPage;
 import cz.fit.cvut.seatlock.es_documents.PerformerDocument;
@@ -65,11 +64,11 @@ public class PerformerService {
         return true;
     }
 
-    public PerformerPage getAllPerformers(PageInput pageInput) {
+    public PerformerPage getAllPerformers(int page, int size) {
         long total = performerRepository.count();
-        List<Performer> content = performerRepository.findAll(pageInput.page(), pageInput.size());
-        int totalPages = (int) Math.ceil((double) total / pageInput.size());
-        return new PerformerPage(content, total, totalPages, pageInput.page());
+        List<Performer> content = performerRepository.findAll(page, size);
+        int totalPages = (int) Math.ceil((double) total / size);
+        return new PerformerPage(content, total, totalPages, page);
     }
 
     public Performer getPerformerById(UUID id) {

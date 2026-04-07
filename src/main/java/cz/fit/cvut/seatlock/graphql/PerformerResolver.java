@@ -1,7 +1,6 @@
 package cz.fit.cvut.seatlock.graphql;
 
 import cz.fit.cvut.seatlock.domain.Performer;
-import cz.fit.cvut.seatlock.dto.PageInput;
 import cz.fit.cvut.seatlock.dto.PerformerDTO;
 import cz.fit.cvut.seatlock.dto.PerformerPage;
 import cz.fit.cvut.seatlock.service.PerformerService;
@@ -39,8 +38,8 @@ public class PerformerResolver {
     }
 
     @QueryMapping
-    public PerformerPage getAllPerformers(@Argument PageInput input){
-        return performerService.getAllPerformers(input);
+    public PerformerPage getAllPerformers(@Argument int page, @Argument int size){
+        return performerService.getAllPerformers(page, size);
     }
 
     @QueryMapping

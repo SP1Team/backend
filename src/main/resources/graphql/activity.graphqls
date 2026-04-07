@@ -48,7 +48,7 @@ input SearchInput{
 }
 
 extend type Query{
-    getAllActivities(input: PageInput!) : ActivityPage
+    getAllActivities(page: Int!, size: Int!) : ActivityPage
     getActivityById(id : ID!) : Activity
     searchActivities(input: SearchInput!) : [Activity]
 }

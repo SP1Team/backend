@@ -6,7 +6,6 @@ import cz.fit.cvut.seatlock.domain.Hall;
 import cz.fit.cvut.seatlock.domain.Performer;
 import cz.fit.cvut.seatlock.dto.ActivityDTO;
 import cz.fit.cvut.seatlock.dto.ActivityPage;
-import cz.fit.cvut.seatlock.dto.PageInput;
 import cz.fit.cvut.seatlock.dto.SearchInputDTO;
 import cz.fit.cvut.seatlock.repository.ActivityCategoryRepository;
 import cz.fit.cvut.seatlock.repository.HallRepository;
@@ -53,8 +52,8 @@ public class ActivityResolver {
     }
 
     @QueryMapping
-    public ActivityPage getAllActivities(@Argument PageInput input) {
-        return activityService.getAllActivities(input);
+    public ActivityPage getAllActivities(@Argument int page, @Argument int size) {
+        return activityService.getAllActivities(page, size);
     }
 
     @QueryMapping

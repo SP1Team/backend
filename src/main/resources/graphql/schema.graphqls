@@ -5,8 +5,3 @@ type Query {
 type Mutation {
     _dummy: String
 }
-
-input PageInput {
-    page: Int!
-    size: Int!
-}
