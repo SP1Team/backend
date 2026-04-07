@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -21,8 +22,17 @@ public class ActivityDocument {
     )
     private String name;
 
+    @Field(type = FieldType.Date)
+    private LocalDate date;
+
     @Field(type = FieldType.Text, analyzer = "standard")
     private String description;
+
+    @Field(type = FieldType.Keyword)
+    private String activityCategory;
+
+    @Field(type = FieldType.Keyword)
+    private String hall;
 
     @Field(type = FieldType.Text, analyzer = "standard")
     private List<String> performerNames;
