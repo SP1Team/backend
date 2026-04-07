@@ -42,6 +42,12 @@ public class ActivityCategoryRepository {
         return record.into(ActivityCategory.class);
     }
 
+    public List<ActivityCategory> findAllByIds(List<UUID> ids) {
+        return dsl.selectFrom(ACTIVITY_CATEGORY)
+                .where(ACTIVITY_CATEGORY.ID.in(ids))
+                .fetchInto(ActivityCategory.class);
+    }
+
     public void delete(ActivityCategory category) {
         dsl.deleteFrom(ACTIVITY_CATEGORY)
                 .where(ACTIVITY_CATEGORY.ID.eq(category.getId()))

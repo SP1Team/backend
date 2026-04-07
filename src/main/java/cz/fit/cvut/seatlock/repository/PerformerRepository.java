@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,6 +49,22 @@ public class PerformerRepository {
         }
         record.store();
         return record.into(Performer.class);
+    }
+
+    public Map<UUID, List<Performer>> findAllByActivityIds(List<UUID> activityIds) {
+        var records = dsl.select()
+                .from(PERFORMER)
+                .join(ACTIVITY_PERFORMER).on(ACTIVITY_PERFORMER.PERFORMER_ID.eq(PERFORMER.ID))
+                .where(ACTIVITY_PERFORMER.ACTIVITY_ID.in(activityIds))
+                .fetch();
+
+        Map<UUID, List<Performer>> result = new HashMap<>();
+        for (var record : records) {
+            UUID activityId = record.get(ACTIVITY_PERFORMER.ACTIVITY_ID);
+            Performer performer = record.into(PERFORMER).into(Performer.class);
+            result.computeIfAbsent(activityId, k -> new ArrayList<>()).add(performer);
+        }
+        return result;
     }
 
     public void delete(Performer performer) {

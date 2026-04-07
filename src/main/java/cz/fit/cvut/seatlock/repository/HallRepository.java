@@ -48,6 +48,12 @@ public class HallRepository {
         return record.into(Hall.class);
     }
 
+    public List<Hall> findAllByIds(List<UUID> ids) {
+        return dsl.selectFrom(HALL)
+                .where(HALL.ID.in(ids))
+                .fetchInto(Hall.class);
+    }
+
     public void delete(Hall hall) {
         dsl.deleteFrom(HALL)
                 .where(HALL.ID.eq(hall.getId()))
