@@ -1,7 +1,9 @@
 package cz.fit.cvut.seatlock.graphql;
 
+import cz.fit.cvut.seatlock.dto.UserDTO;
 import cz.fit.cvut.seatlock.repository.UserRepository;
 import cz.fit.cvut.seatlock.security.SeatlockUserDetails;
+import cz.fit.cvut.seatlock.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -17,10 +19,16 @@ import java.util.UUID;
 public class UserResolver {
 
     private final UserRepository userRepository;
+    private final UserService service;
 
     @QueryMapping
     public SeatlockUserDetails me(@AuthenticationPrincipal SeatlockUserDetails currentUser) {
         return currentUser;
+    }
+
+    @QueryMapping
+    public UserDTO me_(@AuthenticationPrincipal SeatlockUserDetails details){
+        return service.me(details.getUsername());
     }
 
     @PreAuthorize("hasRole('ADMIN')")

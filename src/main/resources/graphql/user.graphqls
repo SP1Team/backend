@@ -7,8 +7,8 @@ extend type Mutation {
 }
 
 type User {
-    id: ID
-    username: String
-    email: String
-    role: String
+    name: String!
+    surname: String!
+    email: String!
+    role: String!
 }
