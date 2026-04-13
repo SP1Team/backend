@@ -37,8 +37,10 @@ public class OfferRepository {
         }
         if (offer.getId() == null) {
             record.setId(UUID.randomUUID());
+            record.insert();
+        } else {
+            record.update();
         }
-        record.store();
         return record.into(Offer.class);
     }
 

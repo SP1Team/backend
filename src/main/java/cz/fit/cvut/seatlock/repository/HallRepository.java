@@ -41,10 +41,12 @@ public class HallRepository {
 
     public Hall save(Hall hall) {
         var record = dsl.newRecord(HALL, hall);
-        if(hall.getId() == null){
+        if (hall.getId() == null) {
             record.setId(UUID.randomUUID());
+            record.insert();
+        } else {
+            record.update();
         }
-        record.store();
         return record.into(Hall.class);
     }
 

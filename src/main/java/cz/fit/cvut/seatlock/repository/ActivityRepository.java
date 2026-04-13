@@ -63,9 +63,10 @@ public class ActivityRepository {
 
         if (record.getId() == null) {
             record.setId(UUID.randomUUID());
+            record.insert();
+        } else {
+            record.update();
         }
-
-        record.store();
         return record.into(Activity.class);
     }
 

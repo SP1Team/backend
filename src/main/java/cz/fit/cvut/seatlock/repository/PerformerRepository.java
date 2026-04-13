@@ -58,8 +58,10 @@ public class PerformerRepository {
         var record = dsl.newRecord(PERFORMER, performer);
         if (performer.getId() == null) {
             record.setId(UUID.randomUUID());
+            record.insert();
+        } else {
+            record.update();
         }
-        record.store();
         return record.into(Performer.class);
     }
 

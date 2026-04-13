@@ -37,8 +37,10 @@ public class ActivityCategoryRepository {
         var record = dsl.newRecord(ACTIVITY_CATEGORY, category);
         if (category.getId() == null) {
             record.setId(UUID.randomUUID());
+            record.insert();
+        } else {
+            record.update();
         }
-        record.store();
         return record.into(ActivityCategory.class);
     }
 

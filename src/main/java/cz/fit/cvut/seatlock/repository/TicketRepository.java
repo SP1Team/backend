@@ -45,8 +45,10 @@ public class TicketRepository {
         }
         if (ticket.getId() == null) {
             record.setId(UUID.randomUUID());
+            record.insert();
+        } else {
+            record.update();
         }
-        record.store();
         return record.into(Ticket.class);
     }
 

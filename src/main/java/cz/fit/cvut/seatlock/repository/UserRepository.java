@@ -40,8 +40,10 @@ public class UserRepository {
         }
         if (user.getId() == null) {
             record.setId(UUID.randomUUID());
+            record.insert();
+        } else {
+            record.update();
         }
-        record.store();
         return record.into(User.class);
     }
 

@@ -44,8 +44,10 @@ public class OrderRepository {
         }
         if (order.getId() == null) {
             record.setId(UUID.randomUUID());
+            record.insert();
+        } else {
+            record.update();
         }
-        record.store();
         return record.into(Order.class);
     }
 
