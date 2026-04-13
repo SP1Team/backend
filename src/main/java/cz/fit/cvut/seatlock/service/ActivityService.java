@@ -4,9 +4,13 @@ import cz.fit.cvut.seatlock.domain.Activity;
 import cz.fit.cvut.seatlock.domain.ActivityCategory;
 import cz.fit.cvut.seatlock.domain.Hall;
 import cz.fit.cvut.seatlock.domain.Performer;
+import cz.fit.cvut.seatlock.domain.Seat;
+import cz.fit.cvut.seatlock.domain.enums.TicketStatus;
 import cz.fit.cvut.seatlock.dto.ActivityDTO;
 import cz.fit.cvut.seatlock.dto.ActivityPage;
 import cz.fit.cvut.seatlock.dto.SearchInputDTO;
+import cz.fit.cvut.seatlock.dto.SeatMapRow;
+import cz.fit.cvut.seatlock.dto.SeatMapTicket;
 import cz.fit.cvut.seatlock.es_documents.ActivityDocument;
 import cz.fit.cvut.seatlock.es_documents.ActivitySearchRepository;
 import cz.fit.cvut.seatlock.events.ActivityEventDTO;
@@ -18,7 +22,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -28,6 +34,8 @@ public class ActivityService {
     private final ActivityCategoryRepository activityCategoryRepository;
     private final HallRepository hallRepository;
     private final PerformerRepository performerRepository;
+    private final SeatRepository seatRepository;
+    private final TicketRepository ticketRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final ActivitySearchRepository activitySearchRepository;
 
@@ -144,6 +152,24 @@ public class ActivityService {
                 performers.stream().map(Performer::getName).toList()
         ));
         return true;
+    }
+
+    public List<SeatMapRow> getSeatMap(UUID activityId) {
+        Activity activity = activityRepository.findById(activityId).orElseThrow(() -> new RuntimeException("Activity not found"));
+
+        List<Seat> seats = seatRepository.findByHallId(activity.getHallId());
+        Map<UUID, TicketStatus> statusBySeatId = ticketRepository.findStatusesByActivityId(activityId);
+
+        Map<Integer, List<SeatMapTicket>> ticketsByRow = new LinkedHashMap<>();
+        for (Seat seat : seats) {
+            TicketStatus status = statusBySeatId.getOrDefault(seat.getId(), TicketStatus.AVAILABLE);
+            SeatMapTicket ticket = new SeatMapTicket(status, seat.getSeatNumber(), seat.getRowNumber());
+            ticketsByRow.computeIfAbsent(seat.getRowNumber(), k -> new ArrayList<>()).add(ticket);
+        }
+
+        return ticketsByRow.entrySet().stream()
+                .map(entry -> new SeatMapRow(entry.getKey(), entry.getValue()))
+                .toList();
     }
 
     public List<Activity> search(SearchInputDTO dto){

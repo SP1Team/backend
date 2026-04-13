@@ -3,15 +3,15 @@ enum TicketStatus{
     RESERVED
     SOLD
 }
-type Ticket{
+type SeatMapTicket{
     status: TicketStatus!
     seat: Int!
     row: Int!
 }
 
-type Row{
+type SeatMapRow{
     number: Int!
-    tickets: [Ticket]!
+    tickets: [SeatMapTicket]!
 }
 
 type Activity{
@@ -67,7 +67,7 @@ extend type Query{
     getAllActivities(page: Int!, size: Int!) : ActivityPage
     getActivityById(id : ID!) : Activity
     searchActivities(input: SearchInput!) : [Activity]
-    getSeatMap(id: ID!): [Row]!
+    getSeatMap(id: ID!): [SeatMapRow]!
 }
 
 extend type Mutation{

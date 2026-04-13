@@ -7,6 +7,7 @@ import cz.fit.cvut.seatlock.domain.Performer;
 import cz.fit.cvut.seatlock.dto.ActivityDTO;
 import cz.fit.cvut.seatlock.dto.ActivityPage;
 import cz.fit.cvut.seatlock.dto.SearchInputDTO;
+import cz.fit.cvut.seatlock.dto.SeatMapRow;
 import cz.fit.cvut.seatlock.repository.ActivityCategoryRepository;
 import cz.fit.cvut.seatlock.repository.HallRepository;
 import cz.fit.cvut.seatlock.repository.PerformerRepository;
@@ -64,6 +65,11 @@ public class ActivityResolver {
     @QueryMapping
     public List<Activity> searchActivities(@Argument SearchInputDTO input){
         return activityService.search(input);
+    }
+
+    @QueryMapping
+    public List<SeatMapRow> getSeatMap(@Argument UUID id) {
+        return activityService.getSeatMap(id);
     }
 
     @BatchMapping

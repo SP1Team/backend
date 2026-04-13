@@ -1,12 +1,14 @@
 package cz.fit.cvut.seatlock.repository;
 
 import cz.fit.cvut.seatlock.domain.Ticket;
+import cz.fit.cvut.seatlock.domain.enums.TicketStatus;
 import static cz.fit.cvut.seatlock.generated.Tables.*;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,6 +48,14 @@ public class TicketRepository {
         }
         record.store();
         return record.into(Ticket.class);
+    }
+
+    public Map<UUID, TicketStatus> findStatusesByActivityId(UUID activityId) {
+        return dsl.select(TICKET.SEAT_ID, TICKET.STATUS)
+                .from(TICKET)
+                .join(OFFER).on(TICKET.OFFER_ID.eq(OFFER.ID))
+                .where(OFFER.ACTIVITY_ID.eq(activityId))
+                .fetchMap(TICKET.SEAT_ID, r -> TicketStatus.valueOf(r.get(TICKET.STATUS)));
     }
 
     public void delete(Ticket ticket) {
