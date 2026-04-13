@@ -58,3 +58,7 @@ logging:
     org.jooq.tools.LoggerListener: DEBUG
     org.springframework.data.elasticsearch: DEBUG
     org.springframework.graphql: DEBUG
+
+app:
+  cors:
+    allowed-origins: ${FRONTEND_URL:http://localhost:3000}

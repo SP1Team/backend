@@ -7,6 +7,7 @@ import cz.fit.cvut.seatlock.repository.HallRepository;
 import cz.fit.cvut.seatlock.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +18,7 @@ public class HallService {
     private final HallRepository hallRepository;
     private final SeatRepository seatRepository;
 
+    @Transactional
     public Hall createHall(HallDTO dto){
         if(hallRepository.findByName(dto.name()).isPresent()){
             throw new RuntimeException("This name is already occupied");
@@ -27,15 +29,20 @@ public class HallService {
         }
 
         Hall newHall = new Hall(dto.name(), dto.address(), dto.city());
+        Hall savedHall = hallRepository.save(newHall);
+
+        List<Seat> seatsToSave = new java.util.ArrayList<>();
         dto.seats().forEach(config -> {
             for(int i = 1; i <= config.countOfSeats(); ++i){
                 Seat newSeat = new Seat(config.rowNumber(), i);
-                newSeat.setHall(newHall);
-                newHall.getSeats().add(newSeat);
+                newSeat.setHall(savedHall);
+                seatsToSave.add(newSeat);
+                savedHall.getSeats().add(newSeat);
             }
         });
 
-        return hallRepository.save(newHall);
+        seatRepository.saveAll(seatsToSave);
+        return savedHall;
     }
 
     public Boolean deleteHall(UUID id) {

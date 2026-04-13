@@ -45,6 +45,21 @@ public class SeatRepository {
                 .execute();
     }
 
+    public void saveAll(List<Seat> seats) {
+        var records = seats.stream().map(seat -> {
+            var record = dsl.newRecord(SEAT, seat);
+            if (seat.getHall() != null) {
+                record.setHallId(seat.getHall().getId());
+            }
+            if (seat.getId() == null) {
+                record.setId(UUID.randomUUID());
+            }
+            return record;
+        }).toList();
+
+        dsl.batchInsert(records).execute();
+    }
+
     public void delete(Seat seat) {
         dsl.deleteFrom(SEAT)
                 .where(SEAT.ID.eq(seat.getId()))
