@@ -1,5 +1,7 @@
 extend type Query {
     me: User
+    getOrders: [Order!]!
+    getOrderById(id: ID!): Order
 }
 
 extend type Mutation {
@@ -8,10 +10,25 @@ extend type Mutation {
 }
 
 type User {
+    id: ID!
     name: String!
     surname: String!
     email: String!
     role: String!
+}
+
+type Order {
+    id: ID!
+    totalPrice: Float!
+    status: String!
+    createdAt: String!
+    tickets: [Ticket!]!
+}
+
+type Ticket {
+    id: ID!
+    seatNumber: Int!
+    rowNumber: Int!
 }
 
 input UserUpdate{

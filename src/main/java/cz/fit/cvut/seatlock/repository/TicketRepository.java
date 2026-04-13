@@ -58,6 +58,18 @@ public class TicketRepository {
                 .fetchMap(TICKET.SEAT_ID, r -> TicketStatus.valueOf(r.get(TICKET.STATUS)));
     }
 
+    public List<Ticket> findByOrderId(UUID orderId) {
+        return dsl.selectFrom(TICKET)
+                .where(TICKET.ORDER_ID.eq(orderId))
+                .fetch(r -> {
+                    Ticket t = r.into(Ticket.class);
+                    cz.fit.cvut.seatlock.domain.Seat seat = new cz.fit.cvut.seatlock.domain.Seat();
+                    seat.setId(r.get(TICKET.SEAT_ID));
+                    t.setSeat(seat);
+                    return t;
+                });
+    }
+
     public void delete(Ticket ticket) {
         dsl.deleteFrom(TICKET)
                 .where(TICKET.ID.eq(ticket.getId()))

@@ -26,6 +26,19 @@ public class OrderService {
     private final ActivityRepository activityRepository;
     private final ReservationEngine reservationEngine;
 
+    public List<Order> getOrdersByUserId(UUID userId) {
+        return orderRepository.findByUserId(userId);
+    }
+
+    public List<Ticket> getTicketsByOrderId(UUID orderId) {
+        return ticketRepository.findByOrderId(orderId);
+    }
+
+    public Order getOrderById(UUID orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+    }
+
     @Transactional
     public Boolean checkout(UUID userId, UUID activityId) {
         List<SeatReservation> cart = reservationEngine.getCart(userId);

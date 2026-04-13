@@ -1,6 +1,7 @@
 package cz.fit.cvut.seatlock.repository;
 
 import cz.fit.cvut.seatlock.domain.Order;
+import cz.fit.cvut.seatlock.domain.User;
 import static cz.fit.cvut.seatlock.generated.Tables.*;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
@@ -24,7 +25,13 @@ public class OrderRepository {
     public Optional<Order> findById(UUID id) {
         return dsl.selectFrom(APP_ORDER)
                 .where(APP_ORDER.ID.eq(id))
-                .fetchOptionalInto(Order.class);
+                .fetchOptional(r -> {
+                    Order o = r.into(Order.class);
+                    User user = new User();
+                    user.setId(r.get(APP_ORDER.USER_ID));
+                    o.setUser(user);
+                    return o;
+                });
     }
 
     public Order save(Order order) {
@@ -40,6 +47,19 @@ public class OrderRepository {
         }
         record.store();
         return record.into(Order.class);
+    }
+
+    public List<Order> findByUserId(UUID userId) {
+        return dsl.selectFrom(APP_ORDER)
+                .where(APP_ORDER.USER_ID.eq(userId))
+                .orderBy(APP_ORDER.CREATED_AT.desc())
+                .fetch(r -> {
+                    Order o = r.into(Order.class);
+                    User user = new User();
+                    user.setId(r.get(APP_ORDER.USER_ID));
+                    o.setUser(user);
+                    return o;
+                });
     }
 
     public void delete(Order order) {
