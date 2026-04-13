@@ -4,6 +4,7 @@ enum TicketStatus{
     SOLD
 }
 type SeatMapTicket{
+    id: ID!
     status: TicketStatus!
     seat: Int!
     row: Int!

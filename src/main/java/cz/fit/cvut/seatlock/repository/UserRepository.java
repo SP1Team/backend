@@ -27,6 +27,12 @@ public class UserRepository {
                 .fetchOptionalInto(User.class);
     }
 
+    public Optional<User> findById(UUID id) {
+        return dsl.selectFrom(APP_USER)
+                .where(APP_USER.ID.eq(id))
+                .fetchOptionalInto(User.class);
+    }
+
     public User save(User user) {
         var record = dsl.newRecord(APP_USER, user);
         if (user.getRole() != null) {

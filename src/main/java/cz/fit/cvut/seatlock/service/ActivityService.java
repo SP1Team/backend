@@ -1,11 +1,8 @@
 package cz.fit.cvut.seatlock.service;
 
-import cz.fit.cvut.seatlock.domain.Activity;
-import cz.fit.cvut.seatlock.domain.ActivityCategory;
-import cz.fit.cvut.seatlock.domain.Hall;
-import cz.fit.cvut.seatlock.domain.Performer;
-import cz.fit.cvut.seatlock.domain.Seat;
+import cz.fit.cvut.seatlock.domain.*;
 import cz.fit.cvut.seatlock.domain.enums.TicketStatus;
+import cz.fit.cvut.seatlock.domain.enums.TicketType;
 import cz.fit.cvut.seatlock.dto.ActivityDTO;
 import cz.fit.cvut.seatlock.dto.ActivityPage;
 import cz.fit.cvut.seatlock.dto.SearchInputDTO;
@@ -14,6 +11,7 @@ import cz.fit.cvut.seatlock.dto.SeatMapTicket;
 import cz.fit.cvut.seatlock.es_documents.ActivityDocument;
 import cz.fit.cvut.seatlock.es_documents.ActivitySearchRepository;
 import cz.fit.cvut.seatlock.events.ActivityEventDTO;
+import cz.fit.cvut.seatlock.redis.ReservationEngine;
 import cz.fit.cvut.seatlock.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -21,11 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -36,8 +30,10 @@ public class ActivityService {
     private final PerformerRepository performerRepository;
     private final SeatRepository seatRepository;
     private final TicketRepository ticketRepository;
+    private final OfferRepository offerRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final ActivitySearchRepository activitySearchRepository;
+    private final ReservationEngine reservationEngine;
 
     public Boolean createActivity(ActivityDTO dto) {
         if (activityRepository.findByName(dto.name()).isPresent()) {
@@ -58,6 +54,13 @@ public class ActivityService {
 
         Activity newActivity = new Activity(dto.name(), dto.date(), dto.startTime(), dto.endTime(), dto.description(), activityCategory, hall, performers);
         Activity saved = activityRepository.save(newActivity);
+
+        // todo удалить во время третьей итерации и добавить создание офферов на UI
+        Offer defaultOffer = new Offer();
+        defaultOffer.setActivity(saved);
+        defaultOffer.setPrice(0.0);
+        defaultOffer.setType(TicketType.STANDARD);
+        offerRepository.save(defaultOffer);
 
         if (!performers.isEmpty()) {
             activityRepository.savePerformers(saved.getId(), performers);
@@ -159,11 +162,15 @@ public class ActivityService {
 
         List<Seat> seats = seatRepository.findByHallId(activity.getHallId());
         Map<UUID, TicketStatus> statusBySeatId = ticketRepository.findStatusesByActivityId(activityId);
+        Set<UUID> reservedInRedis = reservationEngine.getReservedSeatIds(activityId);
 
         Map<Integer, List<SeatMapTicket>> ticketsByRow = new LinkedHashMap<>();
         for (Seat seat : seats) {
             TicketStatus status = statusBySeatId.getOrDefault(seat.getId(), TicketStatus.AVAILABLE);
-            SeatMapTicket ticket = new SeatMapTicket(status, seat.getSeatNumber(), seat.getRowNumber());
+            if (status == TicketStatus.AVAILABLE && reservedInRedis.contains(seat.getId())) {
+                status = TicketStatus.RESERVED;
+            }
+            SeatMapTicket ticket = new SeatMapTicket(seat.getId(), status, seat.getSeatNumber(), seat.getRowNumber());
             ticketsByRow.computeIfAbsent(seat.getRowNumber(), k -> new ArrayList<>()).add(ticket);
         }
 

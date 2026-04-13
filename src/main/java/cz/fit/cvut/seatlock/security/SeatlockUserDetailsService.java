@@ -34,6 +34,7 @@ public class SeatlockUserDetailsService implements UserDetailsService {
 
 
         return new SeatlockUserDetails(
+                user.getId(),
                 user.getEmail(),
                 user.getPassword(),
                 authorities

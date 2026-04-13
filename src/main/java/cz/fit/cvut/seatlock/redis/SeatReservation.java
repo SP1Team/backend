@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public record SeatReservation(
         UUID seatId,
+        UUID activityId,
         UUID userId,
         Instant createdAt
 ) implements Serializable {

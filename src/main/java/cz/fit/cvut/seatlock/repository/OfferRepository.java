@@ -42,6 +42,12 @@ public class OfferRepository {
         return record.into(Offer.class);
     }
 
+    public List<Offer> findByActivityId(UUID activityId) {
+        return dsl.selectFrom(OFFER)
+                .where(OFFER.ACTIVITY_ID.eq(activityId))
+                .fetchInto(Offer.class);
+    }
+
     public void delete(Offer offer) {
         dsl.deleteFrom(OFFER)
                 .where(OFFER.ID.eq(offer.getId()))
