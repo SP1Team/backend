@@ -22,12 +22,7 @@ public class UserResolver {
     private final UserService service;
 
     @QueryMapping
-    public SeatlockUserDetails me(@AuthenticationPrincipal SeatlockUserDetails currentUser) {
-        return currentUser;
-    }
-
-    @QueryMapping
-    public UserDTO me_(@AuthenticationPrincipal SeatlockUserDetails details){
+    public UserDTO me(@AuthenticationPrincipal SeatlockUserDetails details){
         return service.me(details.getUsername());
     }
 
