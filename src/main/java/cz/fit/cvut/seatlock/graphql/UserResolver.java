@@ -1,5 +1,6 @@
 package cz.fit.cvut.seatlock.graphql;
 
+import cz.fit.cvut.seatlock.dto.UpdateUserDTO;
 import cz.fit.cvut.seatlock.dto.UserDTO;
 import cz.fit.cvut.seatlock.repository.UserRepository;
 import cz.fit.cvut.seatlock.security.SeatlockUserDetails;
@@ -30,5 +31,14 @@ public class UserResolver {
     @MutationMapping
     public Boolean approveOrganizer(@Argument UUID userId) {
         return userRepository.updateRoleToOrganization(userId);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @MutationMapping
+    public Boolean updateUser(
+            @AuthenticationPrincipal SeatlockUserDetails details,
+            @Argument UpdateUserDTO input
+    ){
+        return service.updateUser(details.getUsername(), input);
     }
 }

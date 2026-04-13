@@ -4,6 +4,7 @@ extend type Query {
 
 extend type Mutation {
     approveOrganizer(userId: ID!): Boolean
+    updateUser(input: UserUpdate): Boolean
 }
 
 type User {
@@ -11,4 +12,11 @@ type User {
     surname: String!
     email: String!
     role: String!
+}
+
+input UserUpdate{
+    name: String
+    surname: String
+    email: String
+    password: String
 }
