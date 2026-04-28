@@ -17,23 +17,6 @@ services:
       timeout: 5s
       retries: 5
 
-  redis:
-    image: redis:7-alpine
-    container_name: seatlock-redis
-    restart: always
-    ports:
-      - "6379:6379"
-    networks:
-      - app-network
-    command: redis-server --save 60 1 --loglevel warning
-    volumes:
-      - redisdata:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.26
     container_name: seatlock-elastic
@@ -70,8 +53,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      redis:
-        condition: service_healthy
       elasticsearch:
         condition: service_healthy
 
@@ -81,5 +62,4 @@ networks:
 
 volumes:
   pgdata:
-  redisdata:
   elasticdata_v2:

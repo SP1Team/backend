@@ -11,15 +11,6 @@ spring:
   jooq:
     sql-dialect: POSTGRES
 
-  data:
-    redis:
-      host: ${SPRING_DATA_REDIS_HOST:localhost}
-      port: ${SPRING_DATA_REDIS_PORT:6379}
-      lettuce:
-        pool:
-          max-active: 8
-          max-idle: 8
-
   elasticsearch:
     uris: ${SPRING_ELASTICSEARCH_URIS}
     socket-timeout: 10s

@@ -1,6 +1,5 @@
 enum TicketStatus{
     AVAILABLE
-    RESERVED
     SOLD
 }
 type SeatMapTicket{

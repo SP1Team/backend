@@ -11,7 +11,6 @@ import cz.fit.cvut.seatlock.dto.SeatMapTicket;
 import cz.fit.cvut.seatlock.es_documents.ActivityDocument;
 import cz.fit.cvut.seatlock.es_documents.ActivitySearchRepository;
 import cz.fit.cvut.seatlock.events.ActivityEventDTO;
-import cz.fit.cvut.seatlock.redis.ReservationEngine;
 import cz.fit.cvut.seatlock.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -33,7 +32,6 @@ public class ActivityService {
     private final OfferRepository offerRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final ActivitySearchRepository activitySearchRepository;
-    private final ReservationEngine reservationEngine;
 
     public Boolean createActivity(ActivityDTO dto) {
         if (activityRepository.findByName(dto.name()).isPresent()) {
@@ -162,14 +160,10 @@ public class ActivityService {
 
         List<Seat> seats = seatRepository.findByHallId(activity.getHallId());
         Map<UUID, TicketStatus> statusBySeatId = ticketRepository.findStatusesByActivityId(activityId);
-        Set<UUID> reservedInRedis = reservationEngine.getReservedSeatIds(activityId);
 
         Map<Integer, List<SeatMapTicket>> ticketsByRow = new LinkedHashMap<>();
         for (Seat seat : seats) {
             TicketStatus status = statusBySeatId.getOrDefault(seat.getId(), TicketStatus.AVAILABLE);
-            if (status == TicketStatus.AVAILABLE && reservedInRedis.contains(seat.getId())) {
-                status = TicketStatus.RESERVED;
-            }
             SeatMapTicket ticket = new SeatMapTicket(seat.getId(), status, seat.getSeatNumber(), seat.getRowNumber());
             ticketsByRow.computeIfAbsent(seat.getRowNumber(), k -> new ArrayList<>()).add(ticket);
         }

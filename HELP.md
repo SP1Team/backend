@@ -10,7 +10,6 @@ For further reference, please consider the following sections:
 * [Spring Boot Actuator](https://docs.spring.io/spring-boot/4.0.2/reference/actuator/index.html)
 * [Spring Data Elasticsearch](https://docs.spring.io/spring-boot/4.0.2/reference/data/nosql.html#data.nosql.elasticsearch)
 * [Spring Data JPA](https://docs.spring.io/spring-boot/4.0.2/reference/data/sql.html#data.sql.jpa-and-spring-data)
-* [Spring Data Redis (Access+Driver)](https://docs.spring.io/spring-boot/4.0.2/reference/data/nosql.html#data.nosql.redis)
 * [Spring Boot DevTools](https://docs.spring.io/spring-boot/4.0.2/reference/using/devtools.html)
 * [Spring for GraphQL](https://docs.spring.io/spring-boot/4.0.2/reference/web/spring-graphql.html)
 * [Liquibase Migration](https://docs.spring.io/spring-boot/4.0.2/how-to/data-initialization.html#howto.data-initialization.migration-tool.liquibase)
@@ -24,7 +23,6 @@ The following guides illustrate how to use some features concretely:
 
 * [Building a RESTful Web Service with Spring Boot Actuator](https://spring.io/guides/gs/actuator-service/)
 * [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
-* [Messaging with Redis](https://spring.io/guides/gs/messaging-redis/)
 * [Building a GraphQL service](https://spring.io/guides/gs/graphql-server/)
 * [Securing a Web Application](https://spring.io/guides/gs/securing-web/)
 * [Spring Boot and OAuth2](https://spring.io/guides/tutorials/spring-boot-oauth2/)
