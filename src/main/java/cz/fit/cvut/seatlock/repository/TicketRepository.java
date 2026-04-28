@@ -60,6 +60,15 @@ public class TicketRepository {
                 .fetchMap(TICKET.SEAT_ID, r -> TicketStatus.valueOf(r.get(TICKET.STATUS)));
     }
 
+    public List<UUID> findPurchasedSeatIdsByActivityId(UUID activityId) {
+        return dsl.select(TICKET.SEAT_ID)
+                .from(TICKET)
+                .join(OFFER).on(TICKET.OFFER_ID.eq(OFFER.ID))
+                .where(OFFER.ACTIVITY_ID.eq(activityId))
+                .and(TICKET.STATUS.eq(TicketStatus.SOLD.name()))
+                .fetch(TICKET.SEAT_ID);
+    }
+
     public List<Ticket> findByOrderId(UUID orderId) {
         return dsl.selectFrom(TICKET)
                 .where(TICKET.ORDER_ID.eq(orderId))
