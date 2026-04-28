@@ -25,5 +25,7 @@ public class Offer {
 
     private Activity activity;
 
+    private List<Seat> seats = new ArrayList<>();
+
     private List<Ticket> tickets = new ArrayList<>();
 }

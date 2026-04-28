@@ -17,5 +17,6 @@
     <include file="db/changelog/v2.0/01-update-hall.xml"/>
     <include file="db/changelog/v2.0/02-update-activity.xml"/>
     <include file="db/changelog/v2.0/03-update-hall.xml"/>
+    <include file="db/changelog/v2.0/04-create-offer-seat.xml"/>
 
 </databaseChangeLog>

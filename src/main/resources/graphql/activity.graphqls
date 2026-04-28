@@ -7,6 +7,8 @@ type SeatMapTicket{
     status: TicketStatus!
     seat: Int!
     row: Int!
+    price: Float!
+    type: String!
 }
 
 type SeatMapRow{
@@ -33,6 +35,12 @@ type ActivityPage {
     pageNumber: Int!
 }
 
+input PriceZoneInput{
+    ticketType: String!
+    price: Float!
+    seatIds: [ID!]!
+}
+
 input ActivityInput{
     name : String!
     date : String!
@@ -42,6 +50,7 @@ input ActivityInput{
     hallId: ID!
     categoryId: ID!
     performer : [ID!]
+    priceZones: [PriceZoneInput!]!
 }
 
 input ActivityUpdateInput{

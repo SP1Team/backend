@@ -3,11 +3,13 @@ package cz.fit.cvut.seatlock.graphql;
 import cz.fit.cvut.seatlock.domain.Order;
 import cz.fit.cvut.seatlock.domain.Seat;
 import cz.fit.cvut.seatlock.domain.Ticket;
+import cz.fit.cvut.seatlock.dto.CheckoutResponse;
 import cz.fit.cvut.seatlock.repository.SeatRepository;
 import cz.fit.cvut.seatlock.security.SeatlockUserDetails;
 import cz.fit.cvut.seatlock.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -63,5 +65,10 @@ public class OrderResolver {
         return seatRepository.findById(ticket.getSeat().getId())
                 .map(Seat::getRowNumber)
                 .orElse(0);
+    }
+
+    @MutationMapping
+    public CheckoutResponse checkout(@Argument UUID activityId, @Argument List<UUID> seatIds) {
+        return orderService.checkout(getCurrentUserId(), activityId, seatIds);
     }
 }

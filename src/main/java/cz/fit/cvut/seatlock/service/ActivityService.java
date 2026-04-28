@@ -3,11 +3,7 @@ package cz.fit.cvut.seatlock.service;
 import cz.fit.cvut.seatlock.domain.*;
 import cz.fit.cvut.seatlock.domain.enums.TicketStatus;
 import cz.fit.cvut.seatlock.domain.enums.TicketType;
-import cz.fit.cvut.seatlock.dto.ActivityDTO;
-import cz.fit.cvut.seatlock.dto.ActivityPage;
-import cz.fit.cvut.seatlock.dto.SearchInputDTO;
-import cz.fit.cvut.seatlock.dto.SeatMapRow;
-import cz.fit.cvut.seatlock.dto.SeatMapTicket;
+import cz.fit.cvut.seatlock.dto.*;
 import cz.fit.cvut.seatlock.es_documents.ActivityDocument;
 import cz.fit.cvut.seatlock.es_documents.ActivitySearchRepository;
 import cz.fit.cvut.seatlock.events.ActivityEventDTO;
@@ -19,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,12 +50,20 @@ public class ActivityService {
         Activity newActivity = new Activity(dto.name(), dto.date(), dto.startTime(), dto.endTime(), dto.description(), activityCategory, hall, performers);
         Activity saved = activityRepository.save(newActivity);
 
-        // todo удалить во время третьей итерации и добавить создание офферов на UI
-        Offer defaultOffer = new Offer();
-        defaultOffer.setActivity(saved);
-        defaultOffer.setPrice(0.0);
-        defaultOffer.setType(TicketType.STANDARD);
-        offerRepository.save(defaultOffer);
+        if (dto.priceZones() != null && !dto.priceZones().isEmpty()) {
+            for (PriceZoneDTO zone : dto.priceZones()) {
+                Offer offer = new Offer();
+                offer.setActivity(saved);
+                offer.setPrice(zone.price());
+                offer.setType(zone.ticketType());
+
+                if (zone.seatIds() != null && !zone.seatIds().isEmpty()) {
+                    List<Seat> zoneSeats = seatRepository.findAllByIds(zone.seatIds());
+                    offer.setSeats(zoneSeats);
+                }
+                offerRepository.save(offer);
+            }
+        }
 
         if (!performers.isEmpty()) {
             activityRepository.savePerformers(saved.getId(), performers);
@@ -160,11 +165,23 @@ public class ActivityService {
 
         List<Seat> seats = seatRepository.findByHallId(activity.getHallId());
         Map<UUID, TicketStatus> statusBySeatId = ticketRepository.findStatusesByActivityId(activityId);
+        List<Offer> offers = offerRepository.findByActivityId(activityId);
+
+        Map<UUID, Offer> offerBySeatId = new HashMap<>();
+        for (Offer offer : offers) {
+            for (Seat s : offer.getSeats()) {
+                offerBySeatId.put(s.getId(), offer);
+            }
+        }
 
         Map<Integer, List<SeatMapTicket>> ticketsByRow = new LinkedHashMap<>();
         for (Seat seat : seats) {
             TicketStatus status = statusBySeatId.getOrDefault(seat.getId(), TicketStatus.AVAILABLE);
-            SeatMapTicket ticket = new SeatMapTicket(seat.getId(), status, seat.getSeatNumber(), seat.getRowNumber());
+            Offer offer = offerBySeatId.get(seat.getId());
+            Double price = offer != null ? offer.getPrice() : 0.0;
+            TicketType type = offer != null ? offer.getType() : TicketType.STANDARD;
+
+            SeatMapTicket ticket = new SeatMapTicket(seat.getId(), status, seat.getSeatNumber(), seat.getRowNumber(), price, type);
             ticketsByRow.computeIfAbsent(seat.getRowNumber(), k -> new ArrayList<>()).add(ticket);
         }
 

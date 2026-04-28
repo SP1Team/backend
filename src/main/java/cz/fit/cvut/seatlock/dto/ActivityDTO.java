@@ -13,6 +13,7 @@ public record ActivityDTO(
         String description,
         UUID categoryId,
         UUID hallId,
-        List<UUID> performer
+        List<UUID> performer,
+        List<PriceZoneDTO> priceZones
 ) {
 }
