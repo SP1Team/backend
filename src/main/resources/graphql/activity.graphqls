@@ -1,19 +1,23 @@
-enum TicketStatus{
-    AVAILABLE
-    SOLD
-}
 type SeatMapTicket{
     id: ID!
-    status: TicketStatus!
     seat: Int!
     row: Int!
-    price: Float!
     type: String!
 }
 
 type SeatMapRow{
     number: Int!
     tickets: [SeatMapTicket]!
+}
+
+type PriceZoneInfo {
+    type: String!
+    price: Float!
+}
+
+type SeatMapResponse {
+    rows: [SeatMapRow]!
+    priceZones: [PriceZoneInfo]!
 }
 
 type Activity{
@@ -76,7 +80,7 @@ extend type Query{
     getAllActivities(page: Int!, size: Int!) : ActivityPage
     getActivityById(id : ID!) : Activity
     searchActivities(input: SearchInput!) : [Activity]
-    getSeatMap(id: ID!): [SeatMapRow]!
+    getSeatMap(id: ID!): SeatMapResponse!
 }
 
 extend type Mutation{

@@ -160,12 +160,15 @@ public class ActivityService {
         return true;
     }
 
-    public List<SeatMapRow> getSeatMap(UUID activityId) {
+    public SeatMapResponse getSeatMap(UUID activityId) {
         Activity activity = activityRepository.findById(activityId).orElseThrow(() -> new RuntimeException("Activity not found"));
 
         List<Seat> seats = seatRepository.findByHallId(activity.getHallId());
-        Map<UUID, TicketStatus> statusBySeatId = ticketRepository.findStatusesByActivityId(activityId);
         List<Offer> offers = offerRepository.findByActivityId(activityId);
+
+        List<PriceZoneInfo> priceZones = offers.stream()
+                .map(o -> new PriceZoneInfo(o.getType(), o.getPrice()))
+                .toList();
 
         Map<UUID, Offer> offerBySeatId = new HashMap<>();
         for (Offer offer : offers) {
@@ -176,18 +179,18 @@ public class ActivityService {
 
         Map<Integer, List<SeatMapTicket>> ticketsByRow = new LinkedHashMap<>();
         for (Seat seat : seats) {
-            TicketStatus status = statusBySeatId.getOrDefault(seat.getId(), TicketStatus.AVAILABLE);
             Offer offer = offerBySeatId.get(seat.getId());
-            Double price = offer != null ? offer.getPrice() : 0.0;
             TicketType type = offer != null ? offer.getType() : TicketType.STANDARD;
 
-            SeatMapTicket ticket = new SeatMapTicket(seat.getId(), status, seat.getSeatNumber(), seat.getRowNumber(), price, type);
+            SeatMapTicket ticket = new SeatMapTicket(seat.getId(), seat.getSeatNumber(), seat.getRowNumber(), type);
             ticketsByRow.computeIfAbsent(seat.getRowNumber(), k -> new ArrayList<>()).add(ticket);
         }
 
-        return ticketsByRow.entrySet().stream()
+        List<SeatMapRow> rows = ticketsByRow.entrySet().stream()
                 .map(entry -> new SeatMapRow(entry.getKey(), entry.getValue()))
                 .toList();
+
+        return new SeatMapResponse(rows, priceZones);
     }
 
     public List<Activity> search(SearchInputDTO dto){

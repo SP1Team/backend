@@ -6,10 +6,8 @@ import java.util.UUID;
 
 public record SeatMapTicket(
         UUID id,
-        TicketStatus status,
         int seat,
         int row,
-        Double price,
         TicketType type
 ) {
 }
