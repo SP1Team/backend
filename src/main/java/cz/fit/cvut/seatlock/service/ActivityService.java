@@ -193,16 +193,20 @@ public class ActivityService {
         return new SeatMapResponse(rows, priceZones);
     }
 
+    public List<String> getCities() {
+        return activityRepository.findDistinctCities();
+    }
+
     public List<Activity> search(SearchInputDTO dto){
         if(dto.text() == null || dto.text().isBlank()){
-            return activityRepository.findWithFilters(null, dto.date(), dto.startTime(), dto.category(), dto.city());
+            return activityRepository.findWithFilters(null, dto.date(), dto.dateFrom(), dto.dateTo(), dto.startTime(), dto.category(), dto.city());
         }
         List<ActivityDocument> docs = activitySearchRepository.searchByTextWithPerformers(dto.text());
         List<UUID> ids = docs.stream().map(doc -> UUID.fromString(doc.getId())).toList();
         if(ids.isEmpty()){
             return new ArrayList<>();
         }else{
-            return activityRepository.findWithFilters(ids, dto.date(), dto.startTime(), dto.category(), dto.city());
+            return activityRepository.findWithFilters(ids, dto.date(), dto.dateFrom(), dto.dateTo(), dto.startTime(), dto.category(), dto.city());
         }
     }
 }

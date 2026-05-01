@@ -69,6 +69,11 @@ public class ActivityResolver {
     }
 
     @QueryMapping
+    public List<String> getCities() {
+        return activityService.getCities();
+    }
+
+    @QueryMapping
     public SeatMapResponse getSeatMap(@Argument UUID id) {
         return activityService.getSeatMap(id);
     }

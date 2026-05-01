@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -55,6 +56,42 @@ public class OrderRepository {
         return dsl.selectFrom(APP_ORDER)
                 .where(APP_ORDER.USER_ID.eq(userId))
                 .orderBy(APP_ORDER.CREATED_AT.desc())
+                .fetch(r -> {
+                    Order o = r.into(Order.class);
+                    User user = new User();
+                    user.setId(r.get(APP_ORDER.USER_ID));
+                    o.setUser(user);
+                    return o;
+                });
+    }
+
+    public List<Order> findUpcomingByUserId(UUID userId) {
+        return dsl.selectDistinct(APP_ORDER.fields())
+                .from(APP_ORDER)
+                .join(TICKET).on(TICKET.ORDER_ID.eq(APP_ORDER.ID))
+                .join(OFFER).on(TICKET.OFFER_ID.eq(OFFER.ID))
+                .join(ACTIVITY).on(OFFER.ACTIVITY_ID.eq(ACTIVITY.ID))
+                .where(APP_ORDER.USER_ID.eq(userId))
+                .and(ACTIVITY.DATE.greaterOrEqual(LocalDate.now()))
+                .orderBy(ACTIVITY.DATE.asc(), ACTIVITY.START_TIME.asc())
+                .fetch(r -> {
+                    Order o = r.into(Order.class);
+                    User user = new User();
+                    user.setId(r.get(APP_ORDER.USER_ID));
+                    o.setUser(user);
+                    return o;
+                });
+    }
+
+    public List<Order> findPastByUserId(UUID userId) {
+        return dsl.selectDistinct(APP_ORDER.fields())
+                .from(APP_ORDER)
+                .join(TICKET).on(TICKET.ORDER_ID.eq(APP_ORDER.ID))
+                .join(OFFER).on(TICKET.OFFER_ID.eq(OFFER.ID))
+                .join(ACTIVITY).on(OFFER.ACTIVITY_ID.eq(ACTIVITY.ID))
+                .where(APP_ORDER.USER_ID.eq(userId))
+                .and(ACTIVITY.DATE.lessThan(LocalDate.now()))
+                .orderBy(ACTIVITY.DATE.desc(), ACTIVITY.START_TIME.desc())
                 .fetch(r -> {
                     Order o = r.into(Order.class);
                     User user = new User();

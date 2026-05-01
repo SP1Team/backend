@@ -117,7 +117,7 @@ public class ActivityRepository {
                 .fetchInto(UUID.class);
     }
 
-    public List<Activity> findWithFilters(List<UUID> ids, LocalDate date, LocalTime startTime, String category, String city){
+    public List<Activity> findWithFilters(List<UUID> ids, LocalDate date, LocalDate dateFrom, LocalDate dateTo, LocalTime startTime, String category, String city){
         Condition condition = DSL.trueCondition();
 
         if(ids != null){
@@ -125,6 +125,12 @@ public class ActivityRepository {
         }
         if(date != null){
             condition = condition.and(ACTIVITY.DATE.eq(date));
+        }
+        if(dateFrom != null){
+            condition = condition.and(ACTIVITY.DATE.greaterOrEqual(dateFrom));
+        }
+        if(dateTo != null){
+            condition = condition.and(ACTIVITY.DATE.lessOrEqual(dateTo));
         }
         if(startTime != null){
             condition = condition.and(ACTIVITY.START_TIME.greaterOrEqual(startTime));
@@ -142,5 +148,14 @@ public class ActivityRepository {
                 .join(ACTIVITY_CATEGORY).on(ACTIVITY.ACTIVITY_CATEGORY_ID.eq(ACTIVITY_CATEGORY.ID))
                 .where(condition)
                 .fetchInto(Activity.class);
+    }
+
+    public List<String> findDistinctCities() {
+        return dsl.selectDistinct(HALL.CITY)
+                .from(HALL)
+                .join(ACTIVITY).on(ACTIVITY.HALL_ID.eq(HALL.ID))
+                .where(HALL.CITY.isNotNull())
+                .orderBy(HALL.CITY.asc())
+                .fetchInto(String.class);
     }
 }
