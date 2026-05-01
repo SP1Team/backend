@@ -18,5 +18,7 @@
     <include file="db/changelog/v2.0/02-update-activity.xml"/>
     <include file="db/changelog/v2.0/03-update-hall.xml"/>
     <include file="db/changelog/v2.0/04-create-offer-seat.xml"/>
+    <include file="db/changelog/v3.0/01-create-user-favorite-activity.xml"/>
+    <include file="db/changelog/v3.0/02-create-user-favorite-performer.xml"/>
 
 </databaseChangeLog>

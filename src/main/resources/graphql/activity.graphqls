@@ -71,6 +71,8 @@ input ActivityUpdateInput{
 input SearchInput{
     text : String
     date : String
+    dateFrom : String
+    dateTo : String
     startTime : String
     category : String
     city : String
@@ -81,6 +83,7 @@ extend type Query{
     getActivityById(id : ID!) : Activity
     searchActivities(input: SearchInput!) : [Activity]
     getSeatMap(id: ID!): SeatMapResponse!
+    getCities: [String!]!
 }
 
 extend type Mutation{

@@ -2,6 +2,8 @@ extend type Query {
     me: User
     getOrders: [Order!]!
     getOrderById(id: ID!): Order
+    getUpcomingOrders: [Order!]!
+    getPastOrders: [Order!]!
 }
 
 extend type Mutation {

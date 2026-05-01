@@ -6,6 +6,8 @@ import java.time.LocalTime;
 public record SearchInputDTO(
         String text,
         LocalDate date,
+        LocalDate dateFrom,
+        LocalDate dateTo,
         LocalTime startTime,
         String category,
         String city

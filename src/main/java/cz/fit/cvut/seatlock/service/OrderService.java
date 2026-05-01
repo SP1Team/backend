@@ -30,6 +30,14 @@ public class OrderService {
         return orderRepository.findByUserId(userId);
     }
 
+    public List<Order> getUpcomingOrdersByUserId(UUID userId) {
+        return orderRepository.findUpcomingByUserId(userId);
+    }
+
+    public List<Order> getPastOrdersByUserId(UUID userId) {
+        return orderRepository.findPastByUserId(userId);
+    }
+
     public List<Ticket> getTicketsByOrderId(UUID orderId) {
         return ticketRepository.findByOrderId(orderId);
     }

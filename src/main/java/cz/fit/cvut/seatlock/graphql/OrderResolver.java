@@ -39,6 +39,16 @@ public class OrderResolver {
     }
 
     @QueryMapping
+    public List<Order> getUpcomingOrders() {
+        return orderService.getUpcomingOrdersByUserId(getCurrentUserId());
+    }
+
+    @QueryMapping
+    public List<Order> getPastOrders() {
+        return orderService.getPastOrdersByUserId(getCurrentUserId());
+    }
+
+    @QueryMapping
     public Order getOrderById(@Argument UUID id) {
         Order order = orderService.getOrderById(id);
         // Security check: only owner can see the order

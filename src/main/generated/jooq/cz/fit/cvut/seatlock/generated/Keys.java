@@ -15,6 +15,8 @@ import cz.fit.cvut.seatlock.generated.tables.Offer;
 import cz.fit.cvut.seatlock.generated.tables.Performer;
 import cz.fit.cvut.seatlock.generated.tables.Seat;
 import cz.fit.cvut.seatlock.generated.tables.Ticket;
+import cz.fit.cvut.seatlock.generated.tables.UserFavoriteActivity;
+import cz.fit.cvut.seatlock.generated.tables.UserFavoritePerformer;
 import cz.fit.cvut.seatlock.generated.tables.records.ActivityCategoryRecord;
 import cz.fit.cvut.seatlock.generated.tables.records.ActivityPerformerRecord;
 import cz.fit.cvut.seatlock.generated.tables.records.ActivityRecord;
@@ -26,6 +28,8 @@ import cz.fit.cvut.seatlock.generated.tables.records.OfferRecord;
 import cz.fit.cvut.seatlock.generated.tables.records.PerformerRecord;
 import cz.fit.cvut.seatlock.generated.tables.records.SeatRecord;
 import cz.fit.cvut.seatlock.generated.tables.records.TicketRecord;
+import cz.fit.cvut.seatlock.generated.tables.records.UserFavoriteActivityRecord;
+import cz.fit.cvut.seatlock.generated.tables.records.UserFavoritePerformerRecord;
 
 import org.jooq.ForeignKey;
 import org.jooq.TableField;
@@ -77,4 +81,10 @@ public class Keys {
     public static final ForeignKey<TicketRecord, OfferRecord> TICKET__FK_TICKET_OFFER_ID = Internal.createForeignKey(Ticket.TICKET, DSL.name("fk_ticket_offer_id"), new TableField[] { Ticket.TICKET.OFFER_ID }, Keys.PK_OFFER, new TableField[] { Offer.OFFER.ID }, true);
     public static final ForeignKey<TicketRecord, AppOrderRecord> TICKET__FK_TICKET_ORDER_ID = Internal.createForeignKey(Ticket.TICKET, DSL.name("fk_ticket_order_id"), new TableField[] { Ticket.TICKET.ORDER_ID }, Keys.PK_APP_ORDER, new TableField[] { AppOrder.APP_ORDER.ID }, true);
     public static final ForeignKey<TicketRecord, SeatRecord> TICKET__FK_TICKET_SEAT_ID = Internal.createForeignKey(Ticket.TICKET, DSL.name("fk_ticket_seat_id"), new TableField[] { Ticket.TICKET.SEAT_ID }, Keys.PK_SEAT, new TableField[] { Seat.SEAT.ID }, true);
+    public static final UniqueKey<UserFavoriteActivityRecord> PK_USER_FAVORITE_ACTIVITY = Internal.createUniqueKey(UserFavoriteActivity.USER_FAVORITE_ACTIVITY, DSL.name("pk_user_favorite_activity"), new TableField[] { UserFavoriteActivity.USER_FAVORITE_ACTIVITY.USER_ID, UserFavoriteActivity.USER_FAVORITE_ACTIVITY.ACTIVITY_ID }, true);
+    public static final UniqueKey<UserFavoritePerformerRecord> PK_USER_FAVORITE_PERFORMER = Internal.createUniqueKey(UserFavoritePerformer.USER_FAVORITE_PERFORMER, DSL.name("pk_user_favorite_performer"), new TableField[] { UserFavoritePerformer.USER_FAVORITE_PERFORMER.USER_ID, UserFavoritePerformer.USER_FAVORITE_PERFORMER.PERFORMER_ID }, true);
+    public static final ForeignKey<UserFavoriteActivityRecord, AppUserRecord> USER_FAVORITE_ACTIVITY__FK_UFA_USER_ID = Internal.createForeignKey(UserFavoriteActivity.USER_FAVORITE_ACTIVITY, DSL.name("fk_ufa_user_id"), new TableField[] { UserFavoriteActivity.USER_FAVORITE_ACTIVITY.USER_ID }, Keys.PK_APP_USER, new TableField[] { AppUser.APP_USER.ID }, true);
+    public static final ForeignKey<UserFavoriteActivityRecord, ActivityRecord> USER_FAVORITE_ACTIVITY__FK_UFA_ACTIVITY_ID = Internal.createForeignKey(UserFavoriteActivity.USER_FAVORITE_ACTIVITY, DSL.name("fk_ufa_activity_id"), new TableField[] { UserFavoriteActivity.USER_FAVORITE_ACTIVITY.ACTIVITY_ID }, Keys.PK_ACTIVITY, new TableField[] { Activity.ACTIVITY.ID }, true);
+    public static final ForeignKey<UserFavoritePerformerRecord, AppUserRecord> USER_FAVORITE_PERFORMER__FK_UFP_USER_ID = Internal.createForeignKey(UserFavoritePerformer.USER_FAVORITE_PERFORMER, DSL.name("fk_ufp_user_id"), new TableField[] { UserFavoritePerformer.USER_FAVORITE_PERFORMER.USER_ID }, Keys.PK_APP_USER, new TableField[] { AppUser.APP_USER.ID }, true);
+    public static final ForeignKey<UserFavoritePerformerRecord, PerformerRecord> USER_FAVORITE_PERFORMER__FK_UFP_PERFORMER_ID = Internal.createForeignKey(UserFavoritePerformer.USER_FAVORITE_PERFORMER, DSL.name("fk_ufp_performer_id"), new TableField[] { UserFavoritePerformer.USER_FAVORITE_PERFORMER.PERFORMER_ID }, Keys.PK_PERFORMER, new TableField[] { Performer.PERFORMER.ID }, true);
 }

@@ -16,6 +16,8 @@ import cz.fit.cvut.seatlock.generated.tables.Offer;
 import cz.fit.cvut.seatlock.generated.tables.Performer;
 import cz.fit.cvut.seatlock.generated.tables.Seat;
 import cz.fit.cvut.seatlock.generated.tables.Ticket;
+import cz.fit.cvut.seatlock.generated.tables.UserFavoriteActivity;
+import cz.fit.cvut.seatlock.generated.tables.UserFavoritePerformer;
 
 
 /**
@@ -83,4 +85,14 @@ public class Tables {
      * The table <code>public.ticket</code>.
      */
     public static final Ticket TICKET = Ticket.TICKET;
+
+    /**
+     * The table <code>public.user_favorite_activity</code>.
+     */
+    public static final UserFavoriteActivity USER_FAVORITE_ACTIVITY = UserFavoriteActivity.USER_FAVORITE_ACTIVITY;
+
+    /**
+     * The table <code>public.user_favorite_performer</code>.
+     */
+    public static final UserFavoritePerformer USER_FAVORITE_PERFORMER = UserFavoritePerformer.USER_FAVORITE_PERFORMER;
 }

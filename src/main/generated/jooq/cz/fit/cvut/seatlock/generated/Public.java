@@ -16,6 +16,8 @@ import cz.fit.cvut.seatlock.generated.tables.Offer;
 import cz.fit.cvut.seatlock.generated.tables.Performer;
 import cz.fit.cvut.seatlock.generated.tables.Seat;
 import cz.fit.cvut.seatlock.generated.tables.Ticket;
+import cz.fit.cvut.seatlock.generated.tables.UserFavoriteActivity;
+import cz.fit.cvut.seatlock.generated.tables.UserFavoritePerformer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -99,6 +101,16 @@ public class Public extends SchemaImpl {
     public final Ticket TICKET = Ticket.TICKET;
 
     /**
+     * The table <code>public.user_favorite_activity</code>.
+     */
+    public final UserFavoriteActivity USER_FAVORITE_ACTIVITY = UserFavoriteActivity.USER_FAVORITE_ACTIVITY;
+
+    /**
+     * The table <code>public.user_favorite_performer</code>.
+     */
+    public final UserFavoritePerformer USER_FAVORITE_PERFORMER = UserFavoritePerformer.USER_FAVORITE_PERFORMER;
+
+    /**
      * No further instances allowed
      */
     private Public() {
@@ -125,7 +137,9 @@ public class Public extends SchemaImpl {
             Offer.OFFER,
             Performer.PERFORMER,
             Seat.SEAT,
-            Ticket.TICKET
+            Ticket.TICKET,
+            UserFavoriteActivity.USER_FAVORITE_ACTIVITY,
+            UserFavoritePerformer.USER_FAVORITE_PERFORMER
         );
     }
 }
