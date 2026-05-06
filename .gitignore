@@ -32,3 +32,4 @@ application-local.yml
 /security.env
 /database_prod.env
 /seatmap_architecture.md
+/.claude/*

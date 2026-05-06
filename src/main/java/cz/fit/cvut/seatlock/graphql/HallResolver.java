@@ -2,6 +2,7 @@ package cz.fit.cvut.seatlock.graphql;
 
 import cz.fit.cvut.seatlock.domain.Hall;
 import cz.fit.cvut.seatlock.dto.HallDTO;
+import cz.fit.cvut.seatlock.dto.HallSeatMapDTO;
 import cz.fit.cvut.seatlock.service.HallService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -42,5 +43,10 @@ public class HallResolver {
     @QueryMapping
     public Hall getHallById(@Argument UUID id){
         return hallService.getHallById(id);
+    }
+
+    @QueryMapping
+    public HallSeatMapDTO getHallSeatMap(@Argument UUID id){
+        return hallService.getHallSeatMap(id);
     }
 }

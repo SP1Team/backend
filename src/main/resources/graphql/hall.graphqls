@@ -5,6 +5,22 @@ type Hall{
     city: String!
 }
 
+type HallSeat {
+    id: ID!
+    seatNumber: Int!
+    rowNumber: Int!
+}
+
+type HallRow {
+    number: Int!
+    seats: [HallSeat!]!
+}
+
+type HallSeatMap {
+    rows: [HallRow!]!
+}
+
+
 input RowConfig{
     rowNumber: Int!
     countOfSeats: Int!
@@ -21,12 +37,12 @@ input HallUpdateInput {
     name: String
     address: String
     city: String
-    # add seats in future
 }
 
 extend type Query{
     getAllHalls : [Hall]
     getHallById(id : ID!) : Hall
+    getHallSeatMap(id: ID!): HallSeatMap!
 }
 
 extend type Mutation{

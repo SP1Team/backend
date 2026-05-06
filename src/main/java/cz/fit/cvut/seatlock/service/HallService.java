@@ -3,13 +3,18 @@ package cz.fit.cvut.seatlock.service;
 import cz.fit.cvut.seatlock.domain.Hall;
 import cz.fit.cvut.seatlock.domain.Seat;
 import cz.fit.cvut.seatlock.dto.HallDTO;
+import cz.fit.cvut.seatlock.dto.HallRowDTO;
+import cz.fit.cvut.seatlock.dto.HallSeatDTO;
+import cz.fit.cvut.seatlock.dto.HallSeatMapDTO;
 import cz.fit.cvut.seatlock.repository.HallRepository;
 import cz.fit.cvut.seatlock.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -58,6 +63,24 @@ public class HallService {
 
     public Hall getHallById(UUID id) {
         return hallRepository.findById(id).orElseThrow(() -> new RuntimeException("Hall not found"));
+    }
+
+    public HallSeatMapDTO getHallSeatMap(UUID id) {
+        hallRepository.findById(id).orElseThrow(() -> new RuntimeException("Hall not found"));
+
+        List<Seat> seats = seatRepository.findByHallId(id);
+
+        Map<Integer, List<HallSeatDTO>> byRow = new LinkedHashMap<>();
+        for (Seat seat : seats) {
+            byRow.computeIfAbsent(seat.getRowNumber(), k -> new java.util.ArrayList<>())
+                    .add(new HallSeatDTO(seat.getId(), seat.getSeatNumber(), seat.getRowNumber()));
+        }
+
+        List<HallRowDTO> rows = byRow.entrySet().stream()
+                .map(e -> new HallRowDTO(e.getKey(), e.getValue()))
+                .toList();
+
+        return new HallSeatMapDTO(rows);
     }
 
     public Boolean updateHall(HallDTO dto, UUID id) {
