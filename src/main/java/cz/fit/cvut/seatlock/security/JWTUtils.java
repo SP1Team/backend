@@ -32,6 +32,14 @@ public class JWTUtils {
     }
 
     public String generateToken(UserDetails userDetails) {
+        return buildToken(userDetails, jwtExpiration);
+    }
+
+    public String generateShortLivedToken(UserDetails userDetails) {
+        return buildToken(userDetails, 30_000L);
+    }
+
+    private String buildToken(UserDetails userDetails, long expirationMs) {
         Map<String, Object> claims = new HashMap<>();
 
         List<String> roles = userDetails.getAuthorities().stream()
@@ -40,11 +48,15 @@ public class JWTUtils {
 
         claims.put("roles", roles);
 
+        if (userDetails instanceof SeatlockUserDetails details) {
+            claims.put("userId", details.getId().toString());
+        }
+
         return Jwts.builder()
                 .claims(claims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key())
                 .compact();
     }

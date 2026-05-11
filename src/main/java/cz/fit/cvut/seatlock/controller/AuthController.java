@@ -3,7 +3,10 @@ package cz.fit.cvut.seatlock.controller;
 import cz.fit.cvut.seatlock.dto.LoginDTO;
 import cz.fit.cvut.seatlock.dto.RegisterDTO;
 import cz.fit.cvut.seatlock.dto.TokenResponseDTO;
+import cz.fit.cvut.seatlock.security.JWTUtils;
+import cz.fit.cvut.seatlock.security.SeatlockUserDetails;
 import cz.fit.cvut.seatlock.service.AuthService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,6 +32,7 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final JWTUtils jwtUtils;
 
     @Operation(
             summary = "Register a new user",
@@ -112,6 +116,31 @@ public class AuthController {
             @org.springframework.web.bind.annotation.RequestBody LoginDTO loginDTO) {
         var token = authService.login(loginDTO);
         return ResponseEntity.ok(new TokenResponseDTO(token));
+    }
+
+    @Operation(
+            summary = "Get short-lived WebSocket token",
+            description = "Returns a 30-second JWT as a readable cookie for WebSocket handshake with Go service",
+            tags = {"Authentication"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Token set in ws_token cookie"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
+    })
+    @PostMapping("/ws-token")
+    public ResponseEntity<Void> wsToken(
+            @AuthenticationPrincipal SeatlockUserDetails userDetails,
+            HttpServletResponse response) {
+        String token = jwtUtils.generateShortLivedToken(userDetails);
+        ResponseCookie cookie = ResponseCookie.from("ws_token", token)
+                .httpOnly(false)
+                .secure(false)
+                .path("/")
+                .maxAge(Duration.ofSeconds(30))
+                .sameSite("Strict")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        return ResponseEntity.ok().build();
     }
 
     @Operation(
