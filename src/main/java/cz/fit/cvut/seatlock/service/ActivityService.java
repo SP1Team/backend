@@ -3,6 +3,7 @@ package cz.fit.cvut.seatlock.service;
 import cz.fit.cvut.seatlock.domain.*;
 import cz.fit.cvut.seatlock.domain.enums.TicketStatus;
 import cz.fit.cvut.seatlock.domain.enums.TicketType;
+import cz.fit.cvut.seatlock.domain.enums.TicketType;
 import cz.fit.cvut.seatlock.dto.*;
 import cz.fit.cvut.seatlock.es_documents.ActivityDocument;
 import cz.fit.cvut.seatlock.es_documents.ActivitySearchRepository;
@@ -191,6 +192,40 @@ public class ActivityService {
                 .toList();
 
         return new SeatMapResponse(rows, priceZones);
+    }
+
+    public Boolean setOffers(UUID activityId, SetOffersInput input) {
+        Activity activity = activityRepository.findById(activityId)
+                .orElseThrow(() -> new RuntimeException("Activity not found"));
+
+        // типы: name -> Offer (пока без seats)
+        Map<String, Offer> offerByTypeName = new HashMap<>();
+        for (TicketTypeInput t : input.types()) {
+            TicketType ticketType = TicketType.valueOf(t.name().toUpperCase());
+            Offer offer = new Offer();
+            offer.setActivity(activity);
+            offer.setType(ticketType);
+            offer.setPrice(t.price());
+            offerByTypeName.put(t.name().toUpperCase(), offer);
+        }
+
+        // загружаем все места зала, группируем по ряду
+        List<Seat> allSeats = seatRepository.findByHallId(activity.getHallId());
+        Map<Integer, List<Seat>> seatsByRow = new HashMap<>();
+        for (Seat seat : allSeats) {
+            seatsByRow.computeIfAbsent(seat.getRowNumber(), k -> new ArrayList<>()).add(seat);
+        }
+
+        // раскладываем места по офферам
+        for (RowOfferInput rowOffer : input.offers()) {
+            Offer offer = offerByTypeName.get(rowOffer.typeName().toUpperCase());
+            if (offer == null) throw new RuntimeException("Type not found: " + rowOffer.typeName());
+            List<Seat> rowSeats = seatsByRow.getOrDefault(rowOffer.row(), List.of());
+            offer.getSeats().addAll(rowSeats);
+        }
+
+        offerByTypeName.values().forEach(offerRepository::save);
+        return true;
     }
 
     public List<String> getCities() {

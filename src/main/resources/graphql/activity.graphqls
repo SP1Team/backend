@@ -86,8 +86,24 @@ extend type Query{
     getCities: [String!]!
 }
 
+input TicketTypeInput {
+    name: String!
+    price: Float!
+}
+
+input RowOfferInput {
+    row: Int!
+    typeName: String!
+}
+
+input SetOffersInput {
+    types: [TicketTypeInput!]!
+    offers: [RowOfferInput!]!
+}
+
 extend type Mutation{
     createActivity(input : ActivityInput!) : Boolean
     deleteActivity(id : ID!) : Boolean
     updateActivity(input : ActivityUpdateInput!, id : ID!) : Boolean
+    setOffers(activityId: ID!, input: SetOffersInput!): Boolean
 }

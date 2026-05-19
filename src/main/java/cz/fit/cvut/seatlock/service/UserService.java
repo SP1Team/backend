@@ -17,7 +17,7 @@ public class UserService {
 
     public UserDTO me(String email) {
         var user = userRepository.findUserByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-        return new UserDTO(user.getName(), user.getSurname(), user.getEmail(), user.getRole().getAuthority());
+        return new UserDTO(user.getName(), user.getSurname(), user.getEmail(), user.getRole().getAuthority(), user.getPhoneNumber());
     }
 
     public Boolean updateUser(String email, UpdateUserDTO input) {

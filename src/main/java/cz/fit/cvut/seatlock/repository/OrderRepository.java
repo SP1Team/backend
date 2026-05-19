@@ -1,7 +1,11 @@
 package cz.fit.cvut.seatlock.repository;
 
+import cz.fit.cvut.seatlock.domain.Hall;
 import cz.fit.cvut.seatlock.domain.Order;
 import cz.fit.cvut.seatlock.domain.User;
+import cz.fit.cvut.seatlock.dto.OrderActivityDTO;
+import cz.fit.cvut.seatlock.dto.OrderDTO;
+import cz.fit.cvut.seatlock.dto.OrderTicketDTO;
 import static cz.fit.cvut.seatlock.generated.Tables.*;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
@@ -99,6 +103,71 @@ public class OrderRepository {
                     o.setUser(user);
                     return o;
                 });
+    }
+
+    public Optional<OrderDTO> findByIdAsDTO(UUID orderId) {
+        var rows = dsl.select(
+                        APP_ORDER.ID,
+                        APP_ORDER.TOTAL_PRICE,
+                        APP_ORDER.STATUS,
+                        APP_ORDER.CREATED_AT,
+                        TICKET.ID.as("ticket_id"),
+                        SEAT.SEAT_NUMBER,
+                        SEAT.ROW_NUMBER,
+                        ACTIVITY.NAME.as("act_name"),
+                        ACTIVITY.DATE.as("act_date"),
+                        ACTIVITY.START_TIME,
+                        ACTIVITY.END_TIME,
+                        ACTIVITY.DESCRIPTION,
+                        HALL.ID.as("hall_id"),
+                        HALL.NAME.as("hall_name"),
+                        HALL.ADDRESS,
+                        HALL.CITY
+                )
+                .from(APP_ORDER)
+                .join(TICKET).on(TICKET.ORDER_ID.eq(APP_ORDER.ID))
+                .join(SEAT).on(TICKET.SEAT_ID.eq(SEAT.ID))
+                .join(OFFER).on(TICKET.OFFER_ID.eq(OFFER.ID))
+                .join(ACTIVITY).on(OFFER.ACTIVITY_ID.eq(ACTIVITY.ID))
+                .join(HALL).on(ACTIVITY.HALL_ID.eq(HALL.ID))
+                .where(APP_ORDER.ID.eq(orderId))
+                .fetch();
+
+        if (rows.isEmpty()) return Optional.empty();
+
+        var first = rows.get(0);
+
+        Hall hall = new Hall();
+        hall.setId(first.get("hall_id", UUID.class));
+        hall.setName(first.get("hall_name", String.class));
+        hall.setAddress(first.get(HALL.ADDRESS));
+        hall.setCity(first.get(HALL.CITY));
+
+        OrderActivityDTO activity = new OrderActivityDTO(
+                first.get("act_name", String.class),
+                first.get("act_date", LocalDate.class).toString(),
+                first.get(ACTIVITY.START_TIME).toString(),
+                first.get(ACTIVITY.END_TIME).toString(),
+                first.get(ACTIVITY.DESCRIPTION),
+                hall
+        );
+
+        List<OrderTicketDTO> tickets = rows.stream()
+                .map(r -> new OrderTicketDTO(
+                        r.get("ticket_id", UUID.class),
+                        r.get(SEAT.SEAT_NUMBER),
+                        r.get(SEAT.ROW_NUMBER)
+                ))
+                .toList();
+
+        return Optional.of(new OrderDTO(
+                first.get(APP_ORDER.ID),
+                first.get(APP_ORDER.TOTAL_PRICE),
+                first.get(APP_ORDER.STATUS),
+                first.get(APP_ORDER.CREATED_AT).toString(),
+                tickets,
+                activity
+        ));
     }
 
     public void delete(Order order) {

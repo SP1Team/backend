@@ -17,6 +17,7 @@ type User {
     surname: String!
     email: String!
     role: String!
+    phone: String!
 }
 
 type Order {
@@ -25,6 +26,16 @@ type Order {
     status: String!
     createdAt: String!
     tickets: [Ticket!]!
+    activity: OrderActivity!
+}
+
+type OrderActivity{
+    name : String!
+    date : String!
+    startTime : String!
+    endTime : String!
+    description : String
+    hall: Hall!
 }
 
 type Ticket {

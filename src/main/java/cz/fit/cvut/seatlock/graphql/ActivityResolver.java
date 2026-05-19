@@ -9,6 +9,7 @@ import cz.fit.cvut.seatlock.dto.ActivityPage;
 import cz.fit.cvut.seatlock.dto.SearchInputDTO;
 import cz.fit.cvut.seatlock.dto.SeatMapResponse;
 import cz.fit.cvut.seatlock.dto.SeatMapRow;
+import cz.fit.cvut.seatlock.dto.SetOffersInput;
 import cz.fit.cvut.seatlock.repository.ActivityCategoryRepository;
 import cz.fit.cvut.seatlock.repository.HallRepository;
 import cz.fit.cvut.seatlock.repository.PerformerRepository;
@@ -39,6 +40,12 @@ public class ActivityResolver {
     @MutationMapping
     public Boolean createActivity(@Argument ActivityDTO input) {
         return activityService.createActivity(input);
+    }
+
+    @PreAuthorize("hasRole('ORGANIZATION')")
+    @MutationMapping
+    public Boolean setOffers(@Argument UUID activityId, @Argument SetOffersInput input) {
+        return activityService.setOffers(activityId, input);
     }
 
     @PreAuthorize("hasRole('ORGANIZATION')")
