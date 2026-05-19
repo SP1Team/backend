@@ -6,16 +6,16 @@ import com.seatlock.grpc.seats.SeatServiceGrpc;
 import cz.fit.cvut.seatlock.repository.TicketRepository;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import net.devh.boot.grpc.server.service.GrpcService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
-@GrpcService
+@Service
 @RequiredArgsConstructor
 public class SeatGrpcService extends SeatServiceGrpc.SeatServiceImplBase {
 

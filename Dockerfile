@@ -7,7 +7,7 @@ RUN mvn dependency:go-offline dependency:resolve-plugins -B
 
 COPY src ./src
 
-RUN mvn clean package -DskipTests -Djooq.codegen.skip=true -o -B
+RUN mvn clean package -DskipTests -Djooq.codegen.skip=true -B
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
