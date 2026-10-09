@@ -3,9 +3,9 @@ package cz.fit.cvut.seatlock.repository;
 import cz.fit.cvut.seatlock.domain.Hall;
 import cz.fit.cvut.seatlock.domain.Order;
 import cz.fit.cvut.seatlock.domain.User;
-import cz.fit.cvut.seatlock.dto.OrderActivityDTO;
-import cz.fit.cvut.seatlock.dto.OrderDTO;
-import cz.fit.cvut.seatlock.dto.OrderTicketDTO;
+import cz.fit.cvut.seatlock.dto.OrderActivityResponse;
+import cz.fit.cvut.seatlock.dto.OrderResponse;
+import cz.fit.cvut.seatlock.dto.OrderTicketResponse;
 import static cz.fit.cvut.seatlock.generated.Tables.*;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
@@ -105,7 +105,7 @@ public class OrderRepository {
                 });
     }
 
-    public Optional<OrderDTO> findByIdAsDTO(UUID orderId) {
+    public Optional<OrderResponse> findByIdAsResponse(UUID orderId) {
         var rows = dsl.select(
                         APP_ORDER.ID,
                         APP_ORDER.TOTAL_PRICE,
@@ -143,7 +143,7 @@ public class OrderRepository {
         hall.setAddress(first.get(HALL.ADDRESS));
         hall.setCity(first.get(HALL.CITY));
 
-        OrderActivityDTO activity = new OrderActivityDTO(
+        OrderActivityResponse activity = new OrderActivityResponse(
                 first.get("act_name", String.class),
                 first.get("act_date", LocalDate.class).toString(),
                 first.get(ACTIVITY.START_TIME).toString(),
@@ -152,15 +152,15 @@ public class OrderRepository {
                 hall
         );
 
-        List<OrderTicketDTO> tickets = rows.stream()
-                .map(r -> new OrderTicketDTO(
+        List<OrderTicketResponse> tickets = rows.stream()
+                .map(r -> new OrderTicketResponse(
                         r.get("ticket_id", UUID.class),
                         r.get(SEAT.SEAT_NUMBER),
                         r.get(SEAT.ROW_NUMBER)
                 ))
                 .toList();
 
-        return Optional.of(new OrderDTO(
+        return Optional.of(new OrderResponse(
                 first.get(APP_ORDER.ID),
                 first.get(APP_ORDER.TOTAL_PRICE),
                 first.get(APP_ORDER.STATUS),

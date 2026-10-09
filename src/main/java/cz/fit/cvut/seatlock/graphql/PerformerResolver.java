@@ -1,7 +1,7 @@
 package cz.fit.cvut.seatlock.graphql;
 
 import cz.fit.cvut.seatlock.domain.Performer;
-import cz.fit.cvut.seatlock.dto.PerformerDTO;
+import cz.fit.cvut.seatlock.dto.PerformerRequest;
 import cz.fit.cvut.seatlock.dto.PerformerPage;
 import cz.fit.cvut.seatlock.service.PerformerService;
 import jakarta.validation.Valid;
@@ -23,13 +23,13 @@ public class PerformerResolver {
 
     @PreAuthorize("hasRole('ORGANIZATION')")
     @MutationMapping
-    public Boolean createPerformer(@Argument @Valid PerformerDTO input) {
+    public Boolean createPerformer(@Argument @Valid PerformerRequest input) {
         return performerService.createPerformer(input);
     }
 
     @PreAuthorize("hasRole('ORGANIZATION')")
     @MutationMapping
-    public Boolean updatePerformer(@Argument @Valid PerformerDTO input, @Argument UUID id) {
+    public Boolean updatePerformer(@Argument @Valid PerformerRequest input, @Argument UUID id) {
         return performerService.updatePerformer(input, id);
     }
 

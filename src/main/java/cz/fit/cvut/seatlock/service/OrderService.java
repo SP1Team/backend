@@ -5,7 +5,7 @@ import cz.fit.cvut.seatlock.domain.enums.OrderStatus;
 import cz.fit.cvut.seatlock.domain.enums.TicketStatus;
 import cz.fit.cvut.seatlock.domain.enums.TicketType;
 import cz.fit.cvut.seatlock.dto.CheckoutResponse;
-import cz.fit.cvut.seatlock.dto.OrderDTO;
+import cz.fit.cvut.seatlock.dto.OrderResponse;
 import cz.fit.cvut.seatlock.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,8 +42,8 @@ public class OrderService {
         return ticketRepository.findByOrderId(orderId);
     }
 
-    public OrderDTO getOrderById(UUID orderId) {
-        return orderRepository.findByIdAsDTO(orderId)
+    public OrderResponse getOrderById(UUID orderId) {
+        return orderRepository.findByIdAsResponse(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 

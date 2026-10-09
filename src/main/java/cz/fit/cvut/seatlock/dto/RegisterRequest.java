@@ -1,6 +1,6 @@
 package cz.fit.cvut.seatlock.dto;
 
-public record RegisterDTO(
+public record RegisterRequest(
         String email,
         String password,
         String name,

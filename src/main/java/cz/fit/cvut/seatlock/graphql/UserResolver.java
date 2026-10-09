@@ -1,7 +1,7 @@
 package cz.fit.cvut.seatlock.graphql;
 
-import cz.fit.cvut.seatlock.dto.UpdateUserDTO;
-import cz.fit.cvut.seatlock.dto.UserDTO;
+import cz.fit.cvut.seatlock.dto.UpdateUserRequest;
+import cz.fit.cvut.seatlock.dto.UserResponse;
 import cz.fit.cvut.seatlock.repository.UserRepository;
 import cz.fit.cvut.seatlock.security.SeatlockUserDetails;
 import cz.fit.cvut.seatlock.service.UserService;
@@ -23,7 +23,7 @@ public class UserResolver {
     private final UserService service;
 
     @QueryMapping
-    public UserDTO me(@AuthenticationPrincipal SeatlockUserDetails details){
+    public UserResponse me(@AuthenticationPrincipal SeatlockUserDetails details){
         return service.me(details.getUsername());
     }
 
@@ -37,7 +37,7 @@ public class UserResolver {
     @MutationMapping
     public Boolean updateUser(
             @AuthenticationPrincipal SeatlockUserDetails details,
-            @Argument UpdateUserDTO input
+            @Argument UpdateUserRequest input
     ){
         return service.updateUser(details.getUsername(), input);
     }

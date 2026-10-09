@@ -3,7 +3,7 @@ package cz.fit.cvut.seatlock.dto;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public record SearchInputDTO(
+public record ActivitySearchRequest(
         String text,
         LocalDate date,
         LocalDate dateFrom,

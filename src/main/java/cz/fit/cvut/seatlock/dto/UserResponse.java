@@ -1,9 +1,10 @@
 package cz.fit.cvut.seatlock.dto;
 
-public record UpdateUserDTO(
+public record UserResponse(
         String name,
         String surname,
         String email,
-        String password
+        String role,
+        String phone
 ) {
 }

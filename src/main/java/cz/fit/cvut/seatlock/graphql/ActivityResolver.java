@@ -4,9 +4,9 @@ import cz.fit.cvut.seatlock.domain.Activity;
 import cz.fit.cvut.seatlock.domain.ActivityCategory;
 import cz.fit.cvut.seatlock.domain.Hall;
 import cz.fit.cvut.seatlock.domain.Performer;
-import cz.fit.cvut.seatlock.dto.ActivityDTO;
+import cz.fit.cvut.seatlock.dto.ActivityRequest;
 import cz.fit.cvut.seatlock.dto.ActivityPage;
-import cz.fit.cvut.seatlock.dto.SearchInputDTO;
+import cz.fit.cvut.seatlock.dto.ActivitySearchRequest;
 import cz.fit.cvut.seatlock.dto.SeatMapResponse;
 import cz.fit.cvut.seatlock.dto.SeatMapRow;
 import cz.fit.cvut.seatlock.dto.SetOffersInput;
@@ -39,7 +39,7 @@ public class ActivityResolver {
 
     @PreAuthorize("hasRole('ORGANIZATION')")
     @MutationMapping
-    public Boolean createActivity(@Argument ActivityDTO input) {
+    public Boolean createActivity(@Argument ActivityRequest input) {
         return activityService.createActivity(input);
     }
 
@@ -57,7 +57,7 @@ public class ActivityResolver {
 
     @PreAuthorize("hasRole('ORGANIZATION')")
     @MutationMapping
-    public Boolean updateActivity(@Argument ActivityDTO input, @Argument UUID id) {
+    public Boolean updateActivity(@Argument ActivityRequest input, @Argument UUID id) {
         return activityService.updateActivity(input, id);
     }
 
@@ -74,7 +74,7 @@ public class ActivityResolver {
     }
 
     @QueryMapping
-    public List<Activity> searchActivities(@Argument SearchInputDTO input){
+    public List<Activity> searchActivities(@Argument ActivitySearchRequest input){
         return activityService.search(input);
     }
 

@@ -1,7 +1,7 @@
 package cz.fit.cvut.seatlock.service;
 
-import cz.fit.cvut.seatlock.dto.UpdateUserDTO;
-import cz.fit.cvut.seatlock.dto.UserDTO;
+import cz.fit.cvut.seatlock.dto.UpdateUserRequest;
+import cz.fit.cvut.seatlock.dto.UserResponse;
 import cz.fit.cvut.seatlock.repository.OrderRepository;
 import cz.fit.cvut.seatlock.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +15,12 @@ public class UserService {
     private final OrderRepository orderRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserDTO me(String email) {
+    public UserResponse me(String email) {
         var user = userRepository.findUserByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-        return new UserDTO(user.getName(), user.getSurname(), user.getEmail(), user.getRole().getAuthority(), user.getPhoneNumber());
+        return new UserResponse(user.getName(), user.getSurname(), user.getEmail(), user.getRole().getAuthority(), user.getPhoneNumber());
     }
 
-    public Boolean updateUser(String email, UpdateUserDTO input) {
+    public Boolean updateUser(String email, UpdateUserRequest input) {
         var user = userRepository.findUserByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
         if (input.name() != null) {

@@ -1,8 +1,8 @@
 package cz.fit.cvut.seatlock.graphql;
 
 import cz.fit.cvut.seatlock.domain.Hall;
-import cz.fit.cvut.seatlock.dto.HallDTO;
-import cz.fit.cvut.seatlock.dto.HallSeatMapDTO;
+import cz.fit.cvut.seatlock.dto.HallRequest;
+import cz.fit.cvut.seatlock.dto.HallSeatMapResponse;
 import cz.fit.cvut.seatlock.service.HallService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -21,7 +21,7 @@ public class HallResolver {
 
     @PreAuthorize("hasRole('ADMIN')")
     @MutationMapping
-    public Hall createHall(@Argument HallDTO input){
+    public Hall createHall(@Argument HallRequest input){
         return hallService.createHall(input);
     }
 
@@ -33,7 +33,7 @@ public class HallResolver {
 
     @PreAuthorize("hasRole('ADMIN')")
     @MutationMapping
-    public Boolean updateHall(@Argument HallDTO input, @Argument UUID id){ return hallService.updateHall(input, id); }
+    public Boolean updateHall(@Argument HallRequest input, @Argument UUID id){ return hallService.updateHall(input, id); }
 
     @QueryMapping
     public List<Hall> getAllHalls(){
@@ -46,7 +46,7 @@ public class HallResolver {
     }
 
     @QueryMapping
-    public HallSeatMapDTO getHallSeatMap(@Argument UUID id){
+    public HallSeatMapResponse getHallSeatMap(@Argument UUID id){
         return hallService.getHallSeatMap(id);
     }
 }

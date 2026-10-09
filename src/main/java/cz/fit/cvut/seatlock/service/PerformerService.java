@@ -1,7 +1,7 @@
 package cz.fit.cvut.seatlock.service;
 
 import cz.fit.cvut.seatlock.domain.Performer;
-import cz.fit.cvut.seatlock.dto.PerformerDTO;
+import cz.fit.cvut.seatlock.dto.PerformerRequest;
 import cz.fit.cvut.seatlock.dto.PerformerPage;
 import cz.fit.cvut.seatlock.es_documents.PerformerDocument;
 import cz.fit.cvut.seatlock.es_documents.PerformerSearchRepository;
@@ -25,7 +25,7 @@ public class PerformerService {
     private final ApplicationEventPublisher eventPublisher;
     private final PerformerSearchRepository performerSearchRepository;
 
-    public Boolean createPerformer(PerformerDTO input) {
+    public Boolean createPerformer(PerformerRequest input) {
         Performer performer = new Performer(input.name(), input.description());
         Performer saved = performerRepository.save(performer);
 
@@ -36,15 +36,15 @@ public class PerformerService {
         return true;
     }
 
-    public Boolean updatePerformer(PerformerDTO dto, UUID id) {
+    public Boolean updatePerformer(PerformerRequest request, UUID id) {
         Performer performerToUpdate = performerRepository.findById(id).orElseThrow(() -> new RuntimeException("Performer not found"));
 
-        if(dto.name() != null){
-            performerToUpdate.setName(dto.name());
+        if(request.name() != null){
+            performerToUpdate.setName(request.name());
         }
 
-        if(dto.description() != null){
-            performerToUpdate.setDescription(dto.description());
+        if(request.description() != null){
+            performerToUpdate.setDescription(request.description());
         }
 
         performerRepository.save(performerToUpdate);

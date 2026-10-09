@@ -30,26 +30,26 @@ public class ActivityService {
     private final ApplicationEventPublisher eventPublisher;
     private final ActivitySearchRepository activitySearchRepository;
 
-    public Boolean createActivity(ActivityDTO dto) {
-        if (activityRepository.findByName(dto.name()).isPresent()) {
+    public Boolean createActivity(ActivityRequest request) {
+        if (activityRepository.findByName(request.name()).isPresent()) {
             throw new RuntimeException("Activity with this name already exists");
         }
 
-        Hall hall = hallRepository.findById(dto.hallId()).orElseThrow(() -> new RuntimeException("Hall not found"));
+        Hall hall = hallRepository.findById(request.hallId()).orElseThrow(() -> new RuntimeException("Hall not found"));
 
-        ActivityCategory activityCategory = activityCategoryRepository.findById(dto.categoryId()).orElseThrow(() -> new RuntimeException("Activity category not found"));
+        ActivityCategory activityCategory = activityCategoryRepository.findById(request.categoryId()).orElseThrow(() -> new RuntimeException("Activity category not found"));
 
-        if (!activityRepository.availableTimeForActivity(dto.hallId(), dto.date(), dto.startTime(), dto.endTime(), null)) {
+        if (!activityRepository.availableTimeForActivity(request.hallId(), request.date(), request.startTime(), request.endTime(), null)) {
             throw new RuntimeException("Hall is not available at this time");
         }
 
-        List<Performer> performers = findPerformersOrThrow(dto.performer());
-        Map<UUID, Seat> priceZoneSeats = findPriceZoneSeatsOrThrow(dto.priceZones());
+        List<Performer> performers = findPerformersOrThrow(request.performer());
+        Map<UUID, Seat> priceZoneSeats = findPriceZoneSeatsOrThrow(request.priceZones());
 
-        Activity newActivity = new Activity(dto.name(), dto.date(), dto.startTime(), dto.endTime(), dto.description(), activityCategory, hall, performers);
+        Activity newActivity = new Activity(request.name(), request.date(), request.startTime(), request.endTime(), request.description(), activityCategory, hall, performers);
         List<Offer> offers = new ArrayList<>();
-        if (dto.priceZones() != null && !dto.priceZones().isEmpty()) {
-            for (PriceZoneDTO zone : dto.priceZones()) {
+        if (request.priceZones() != null && !request.priceZones().isEmpty()) {
+            for (PriceZoneRequest zone : request.priceZones()) {
                 Offer offer = new Offer();
                 offer.setActivity(newActivity);
                 offer.setPrice(zone.price());
@@ -98,7 +98,7 @@ public class ActivityService {
         return performers;
     }
 
-    private Map<UUID, Seat> findPriceZoneSeatsOrThrow(List<PriceZoneDTO> priceZones) {
+    private Map<UUID, Seat> findPriceZoneSeatsOrThrow(List<PriceZoneRequest> priceZones) {
         if (priceZones == null || priceZones.isEmpty()) {
             return Map.of();
         }
@@ -147,45 +147,45 @@ public class ActivityService {
         return true;
     }
 
-    public Boolean updateActivity(ActivityDTO dto, UUID id) {
+    public Boolean updateActivity(ActivityRequest request, UUID id) {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Activity not found"));
 
-        if (dto.name() != null) {
-            activityRepository.findByName(dto.name()).ifPresent(found -> {
+        if (request.name() != null) {
+            activityRepository.findByName(request.name()).ifPresent(found -> {
                 if (!found.getId().equals(id)) {
                     throw new RuntimeException("Activity with this name already exists");
                 }
             });
         }
 
-        UUID hallId = dto.hallId() != null ? dto.hallId() : activity.getHallId();
-        LocalDate date = dto.date() != null ? dto.date() : activity.getDate();
-        LocalTime startTime = dto.startTime() != null ? dto.startTime() : activity.getStartTime();
-        LocalTime endTime = dto.endTime() != null ? dto.endTime() : activity.getEndTime();
+        UUID hallId = request.hallId() != null ? request.hallId() : activity.getHallId();
+        LocalDate date = request.date() != null ? request.date() : activity.getDate();
+        LocalTime startTime = request.startTime() != null ? request.startTime() : activity.getStartTime();
+        LocalTime endTime = request.endTime() != null ? request.endTime() : activity.getEndTime();
 
         if (!activityRepository.availableTimeForActivity(hallId, date, startTime, endTime, id)) {
             throw new RuntimeException("Hall is not available at this time");
         }
 
-        if (dto.name() != null) activity.setName(dto.name());
-        if (dto.date() != null) activity.setDate(dto.date());
-        if (dto.startTime() != null) activity.setStartTime(dto.startTime());
-        if (dto.endTime() != null) activity.setEndTime(dto.endTime());
-        if (dto.description() != null) activity.setDescription(dto.description());
+        if (request.name() != null) activity.setName(request.name());
+        if (request.date() != null) activity.setDate(request.date());
+        if (request.startTime() != null) activity.setStartTime(request.startTime());
+        if (request.endTime() != null) activity.setEndTime(request.endTime());
+        if (request.description() != null) activity.setDescription(request.description());
 
         Hall hall = hallRepository.findById(hallId)
                 .orElseThrow(() -> new RuntimeException("Hall not found"));
         activity.setHall(hall);
 
-        UUID categoryId = dto.categoryId() != null ? dto.categoryId() : activity.getActivityCategoryId();
+        UUID categoryId = request.categoryId() != null ? request.categoryId() : activity.getActivityCategoryId();
         ActivityCategory category = activityCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
         activity.setCategory(category);
 
         List<Performer> performers;
-        if (dto.performer() != null) {
-            performers = findPerformersOrThrow(dto.performer());
+        if (request.performer() != null) {
+            performers = findPerformersOrThrow(request.performer());
             activityRepository.deletePerformers(id);
             if (!performers.isEmpty()) activityRepository.savePerformers(id, performers);
         } else {
@@ -288,16 +288,16 @@ public class ActivityService {
         return activityRepository.findDistinctCities();
     }
 
-    public List<Activity> search(SearchInputDTO dto){
-        if(dto.text() == null || dto.text().isBlank()){
-            return activityRepository.findWithFilters(null, dto.date(), dto.dateFrom(), dto.dateTo(), dto.startTime(), dto.category(), dto.city());
+    public List<Activity> search(ActivitySearchRequest request){
+        if(request.text() == null || request.text().isBlank()){
+            return activityRepository.findWithFilters(null, request.date(), request.dateFrom(), request.dateTo(), request.startTime(), request.category(), request.city());
         }
-        List<ActivityDocument> docs = activitySearchRepository.searchByTextWithPerformers(dto.text());
+        List<ActivityDocument> docs = activitySearchRepository.searchByTextWithPerformers(request.text());
         List<UUID> ids = docs.stream().map(doc -> UUID.fromString(doc.getId())).toList();
         if(ids.isEmpty()){
             return new ArrayList<>();
         }else{
-            return activityRepository.findWithFilters(ids, dto.date(), dto.dateFrom(), dto.dateTo(), dto.startTime(), dto.category(), dto.city());
+            return activityRepository.findWithFilters(ids, request.date(), request.dateFrom(), request.dateTo(), request.startTime(), request.category(), request.city());
         }
     }
 }

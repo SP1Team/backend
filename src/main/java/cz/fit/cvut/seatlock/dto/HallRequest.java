@@ -2,7 +2,7 @@ package cz.fit.cvut.seatlock.dto;
 
 import java.util.List;
 
-public record HallDTO(
+public record HallRequest(
         String name,
         String address,
         String city,

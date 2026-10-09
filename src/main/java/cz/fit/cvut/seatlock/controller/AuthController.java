@@ -1,8 +1,8 @@
 package cz.fit.cvut.seatlock.controller;
 
-import cz.fit.cvut.seatlock.dto.LoginDTO;
-import cz.fit.cvut.seatlock.dto.RegisterDTO;
-import cz.fit.cvut.seatlock.dto.TokenResponseDTO;
+import cz.fit.cvut.seatlock.dto.LoginRequest;
+import cz.fit.cvut.seatlock.dto.RegisterRequest;
+import cz.fit.cvut.seatlock.dto.TokenResponse;
 import cz.fit.cvut.seatlock.security.JWTUtils;
 import cz.fit.cvut.seatlock.security.SeatlockUserDetails;
 import cz.fit.cvut.seatlock.service.AuthService;
@@ -50,11 +50,11 @@ public class AuthController {
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = RegisterDTO.class)
+                            schema = @Schema(implementation = RegisterRequest.class)
                     )
             )
-            @org.springframework.web.bind.annotation.RequestBody RegisterDTO registerDTO) {
-        authService.register(registerDTO);
+            @org.springframework.web.bind.annotation.RequestBody RegisterRequest registerRequest) {
+        authService.register(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -75,12 +75,12 @@ public class AuthController {
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = LoginDTO.class)
+                            schema = @Schema(implementation = LoginRequest.class)
                     )
             )
-            @org.springframework.web.bind.annotation.RequestBody LoginDTO loginDTO,
+            @org.springframework.web.bind.annotation.RequestBody LoginRequest loginRequest,
             HttpServletResponse response) {
-        var token = authService.login(loginDTO);
+        var token = authService.login(loginRequest);
         ResponseCookie cookie = ResponseCookie.from("accessToken", token)
                 .httpOnly(true)
                 .secure(false)
@@ -99,23 +99,23 @@ public class AuthController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Login successful, token returned in body",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TokenResponseDTO.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TokenResponse.class))),
             @ApiResponse(responseCode = "401", description = "Invalid credentials"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping("/login-token")
-    public ResponseEntity<TokenResponseDTO> loginWithToken(
+    public ResponseEntity<TokenResponse> loginWithToken(
             @RequestBody(
                     description = "User login credentials",
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = LoginDTO.class)
+                            schema = @Schema(implementation = LoginRequest.class)
                     )
             )
-            @org.springframework.web.bind.annotation.RequestBody LoginDTO loginDTO) {
-        var token = authService.login(loginDTO);
-        return ResponseEntity.ok(new TokenResponseDTO(token));
+            @org.springframework.web.bind.annotation.RequestBody LoginRequest loginRequest) {
+        var token = authService.login(loginRequest);
+        return ResponseEntity.ok(new TokenResponse(token));
     }
 
     @Operation(

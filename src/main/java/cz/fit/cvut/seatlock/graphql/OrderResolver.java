@@ -2,7 +2,7 @@ package cz.fit.cvut.seatlock.graphql;
 
 import cz.fit.cvut.seatlock.domain.Order;
 import cz.fit.cvut.seatlock.dto.CheckoutResponse;
-import cz.fit.cvut.seatlock.dto.OrderDTO;
+import cz.fit.cvut.seatlock.dto.OrderResponse;
 import cz.fit.cvut.seatlock.security.SeatlockUserDetails;
 import cz.fit.cvut.seatlock.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,7 @@ public class OrderResolver {
     }
 
     @QueryMapping
-    public OrderDTO getOrderById(@Argument UUID id) {
+    public OrderResponse getOrderById(@Argument UUID id) {
         return orderService.getOrderById(id);
     }
 

@@ -5,7 +5,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
-public record ActivityDTO(
+public record ActivityRequest(
         String name,
         LocalDate date,
         LocalTime startTime,
@@ -14,6 +14,6 @@ public record ActivityDTO(
         UUID categoryId,
         UUID hallId,
         List<UUID> performer,
-        List<PriceZoneDTO> priceZones
+        List<PriceZoneRequest> priceZones
 ) {
 }

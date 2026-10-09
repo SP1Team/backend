@@ -2,8 +2,8 @@ package cz.fit.cvut.seatlock.service;
 
 import cz.fit.cvut.seatlock.domain.User;
 import cz.fit.cvut.seatlock.domain.enums.Role;
-import cz.fit.cvut.seatlock.dto.LoginDTO;
-import cz.fit.cvut.seatlock.dto.RegisterDTO;
+import cz.fit.cvut.seatlock.dto.LoginRequest;
+import cz.fit.cvut.seatlock.dto.RegisterRequest;
 import cz.fit.cvut.seatlock.exception.InvalidCredentialsException;
 import cz.fit.cvut.seatlock.exception.UserAlreadyExistsException;
 import cz.fit.cvut.seatlock.repository.UserRepository;
@@ -24,14 +24,14 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void register(RegisterDTO registerDTO){
+    public void register(RegisterRequest registerRequest){
         try{
-            User newUser = new User(registerDTO.email(),
-                    passwordEncoder.encode(registerDTO.password()),
-                    registerDTO.name(),
-                    registerDTO.surname(),
-                    registerDTO.countryCode(),
-                    registerDTO.phoneNumber()
+            User newUser = new User(registerRequest.email(),
+                    passwordEncoder.encode(registerRequest.password()),
+                    registerRequest.name(),
+                    registerRequest.surname(),
+                    registerRequest.countryCode(),
+                    registerRequest.phoneNumber()
             );
             newUser.setRole(Role.ROLE_CUSTOMER);
             userRepository.save(newUser);
@@ -41,9 +41,9 @@ public class AuthService {
     }
 
 
-    public String login(LoginDTO loginDTO) {
-        var userDetails = seatlockUserDetailsService.loadUserByUsername(loginDTO.email());
-        if(!passwordEncoder.matches(loginDTO.password(), userDetails.getPassword())){
+    public String login(LoginRequest loginRequest) {
+        var userDetails = seatlockUserDetailsService.loadUserByUsername(loginRequest.email());
+        if(!passwordEncoder.matches(loginRequest.password(), userDetails.getPassword())){
             throw new InvalidCredentialsException("Invalid credentials");
         }
         return jwtUtils.generateToken(userDetails);
