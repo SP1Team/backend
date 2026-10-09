@@ -10,8 +10,10 @@ import cz.fit.cvut.seatlock.repository.UserRepository;
 import cz.fit.cvut.seatlock.security.JWTUtils;
 import cz.fit.cvut.seatlock.security.SeatlockUserDetailsService;
 import lombok.RequiredArgsConstructor;
+import org.jooq.exception.IntegrityConstraintViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,20 +23,23 @@ public class AuthService {
     private final JWTUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
 
-    public void register(RegisterDTO registerDTO) {
-        userRepository.findUserByEmail(registerDTO.email())
-                .ifPresent(user -> {
-                    throw new UserAlreadyExistsException("User with this email already exists");
-                });
-        userRepository.findUserByPhoneNumber(registerDTO.phoneNumber())
-                .ifPresent(user -> {
-                    throw new UserAlreadyExistsException("Phone number is already used");
-                });
-        User newUser = new User(registerDTO.email(), passwordEncoder.encode(registerDTO.password()), registerDTO.name(),
-                registerDTO.surname(), registerDTO.countryCode(), registerDTO.phoneNumber());
-        newUser.setRole(Role.ROLE_CUSTOMER);
-        userRepository.save(newUser);
+    @Transactional
+    public void register(RegisterDTO registerDTO){
+        try{
+            User newUser = new User(registerDTO.email(),
+                    passwordEncoder.encode(registerDTO.password()),
+                    registerDTO.name(),
+                    registerDTO.surname(),
+                    registerDTO.countryCode(),
+                    registerDTO.phoneNumber()
+            );
+            newUser.setRole(Role.ROLE_CUSTOMER);
+            userRepository.save(newUser);
+        }catch (IntegrityConstraintViolationException ex){
+            throw new UserAlreadyExistsException("User with this email or phone number already exists");
+        }
     }
+
 
     public String login(LoginDTO loginDTO) {
         var userDetails = seatlockUserDetailsService.loadUserByUsername(loginDTO.email());
