@@ -3,7 +3,6 @@ package cz.fit.cvut.seatlock.service;
 import cz.fit.cvut.seatlock.domain.*;
 import cz.fit.cvut.seatlock.domain.enums.TicketStatus;
 import cz.fit.cvut.seatlock.domain.enums.TicketType;
-import cz.fit.cvut.seatlock.domain.enums.TicketType;
 import cz.fit.cvut.seatlock.dto.*;
 import cz.fit.cvut.seatlock.es_documents.ActivityDocument;
 import cz.fit.cvut.seatlock.es_documents.ActivitySearchRepository;
@@ -44,27 +43,32 @@ public class ActivityService {
             throw new RuntimeException("Hall is not available at this time");
         }
 
-        List<Performer> performers = dto.performer() != null && !dto.performer().isEmpty()
-                ? performerRepository.findAllByIds(dto.performer())
-                : new ArrayList<>();
+        List<Performer> performers = findPerformersOrThrow(dto.performer());
+        Map<UUID, Seat> priceZoneSeats = findPriceZoneSeatsOrThrow(dto.priceZones());
 
         Activity newActivity = new Activity(dto.name(), dto.date(), dto.startTime(), dto.endTime(), dto.description(), activityCategory, hall, performers);
-        Activity saved = activityRepository.save(newActivity);
-
+        List<Offer> offers = new ArrayList<>();
         if (dto.priceZones() != null && !dto.priceZones().isEmpty()) {
             for (PriceZoneDTO zone : dto.priceZones()) {
                 Offer offer = new Offer();
-                offer.setActivity(saved);
+                offer.setActivity(newActivity);
                 offer.setPrice(zone.price());
                 offer.setType(zone.ticketType());
 
                 if (zone.seatIds() != null && !zone.seatIds().isEmpty()) {
-                    List<Seat> zoneSeats = seatRepository.findAllByIds(zone.seatIds());
+                    List<Seat> zoneSeats = zone.seatIds().stream()
+                            .map(priceZoneSeats::get)
+                            .toList();
                     offer.setSeats(zoneSeats);
                 }
-                offerRepository.save(offer);
+                offers.add(offer);
             }
         }
+        OfferSeatIndex.create(offers);
+
+        Activity saved = activityRepository.save(newActivity);
+        offers.forEach(offer -> offer.setActivity(saved));
+        offers.forEach(offerRepository::save);
 
         if (!performers.isEmpty()) {
             activityRepository.savePerformers(saved.getId(), performers);
@@ -78,6 +82,48 @@ public class ActivityService {
         ));
 
         return true;
+    }
+
+    private List<Performer> findPerformersOrThrow(List<UUID> performerIds) {
+        if (performerIds == null || performerIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Performer> performers = performerRepository.findAllByIds(performerIds);
+        ensureAllIdsFound(
+                performerIds,
+                performers.stream().map(Performer::getId).collect(Collectors.toSet()),
+                "Performer"
+        );
+        return performers;
+    }
+
+    private Map<UUID, Seat> findPriceZoneSeatsOrThrow(List<PriceZoneDTO> priceZones) {
+        if (priceZones == null || priceZones.isEmpty()) {
+            return Map.of();
+        }
+
+        List<UUID> seatIds = priceZones.stream()
+                .filter(zone -> zone.seatIds() != null)
+                .flatMap(zone -> zone.seatIds().stream())
+                .toList();
+        if (seatIds.isEmpty()) {
+            return Map.of();
+        }
+
+        List<Seat> seats = seatRepository.findAllByIds(seatIds);
+        Map<UUID, Seat> seatsById = seats.stream()
+                .collect(Collectors.toMap(Seat::getId, seat -> seat));
+        ensureAllIdsFound(seatIds, seatsById.keySet(), "Seat");
+        return seatsById;
+    }
+
+    private void ensureAllIdsFound(List<UUID> requestedIds, Set<UUID> foundIds, String entityName) {
+        Set<UUID> missingIds = new LinkedHashSet<>(requestedIds);
+        missingIds.removeAll(foundIds);
+        if (!missingIds.isEmpty()) {
+            throw new IllegalArgumentException(entityName + " IDs not found: " + missingIds);
+        }
     }
 
     public ActivityPage getAllActivities(int page, int size) {
@@ -139,10 +185,8 @@ public class ActivityService {
 
         List<Performer> performers;
         if (dto.performer() != null) {
+            performers = findPerformersOrThrow(dto.performer());
             activityRepository.deletePerformers(id);
-            performers = dto.performer().isEmpty()
-                    ? new ArrayList<>()
-                    : performerRepository.findAllByIds(dto.performer());
             if (!performers.isEmpty()) activityRepository.savePerformers(id, performers);
         } else {
             performers = performerRepository.findAllByIds(
@@ -171,12 +215,7 @@ public class ActivityService {
                 .map(o -> new PriceZoneInfo(o.getType(), o.getPrice()))
                 .toList();
 
-        Map<UUID, Offer> offerBySeatId = new HashMap<>();
-        for (Offer offer : offers) {
-            for (Seat s : offer.getSeats()) {
-                offerBySeatId.put(s.getId(), offer);
-            }
-        }
+        Map<UUID, Offer> offerBySeatId = OfferSeatIndex.create(offers);
 
         Map<Integer, List<SeatMapTicket>> ticketsByRow = new LinkedHashMap<>();
         for (Seat seat : seats) {
@@ -201,12 +240,17 @@ public class ActivityService {
         // типы: name -> Offer (пока без seats)
         Map<String, Offer> offerByTypeName = new HashMap<>();
         for (TicketTypeInput t : input.types()) {
-            TicketType ticketType = TicketType.valueOf(t.name().toUpperCase());
+            String typeName = t.name().toUpperCase(Locale.ROOT);
+            if (offerByTypeName.containsKey(typeName)) {
+                throw new IllegalArgumentException("Duplicate ticket type: " + typeName);
+            }
+
+            TicketType ticketType = TicketType.valueOf(typeName);
             Offer offer = new Offer();
             offer.setActivity(activity);
             offer.setType(ticketType);
             offer.setPrice(t.price());
-            offerByTypeName.put(t.name().toUpperCase(), offer);
+            offerByTypeName.put(typeName, offer);
         }
 
         // загружаем все места зала, группируем по ряду
@@ -217,15 +261,24 @@ public class ActivityService {
         }
 
         // раскладываем места по офферам
+        Map<String, Set<UUID>> assignedSeatIdsByType = new HashMap<>();
         for (RowOfferInput rowOffer : input.offers()) {
-            Offer offer = offerByTypeName.get(rowOffer.typeName().toUpperCase());
+            String typeName = rowOffer.typeName().toUpperCase(Locale.ROOT);
+            Offer offer = offerByTypeName.get(typeName);
             if (offer == null) throw new RuntimeException("Type not found: " + rowOffer.typeName());
             List<Seat> rowSeats = seatsByRow.get(rowOffer.row());
             if (rowSeats == null) {
                 throw new IllegalArgumentException("Row not found in activity hall: " + rowOffer.row());
             }
-            offer.getSeats().addAll(rowSeats);
+            Set<UUID> assignedSeatIds = assignedSeatIdsByType.computeIfAbsent(typeName, ignored -> new HashSet<>());
+            rowSeats.stream()
+                    .filter(seat -> assignedSeatIds.add(seat.getId()))
+                    .forEach(offer.getSeats()::add);
         }
+
+        List<Offer> offers = new ArrayList<>(offerRepository.findByActivityId(activityId));
+        offers.addAll(offerByTypeName.values());
+        OfferSeatIndex.create(offers);
 
         offerByTypeName.values().forEach(offerRepository::save);
         return true;

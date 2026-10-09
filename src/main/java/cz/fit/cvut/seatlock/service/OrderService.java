@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -58,12 +57,7 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         List<Offer> offers = offerRepository.findByActivityId(activityId);
-        Map<UUID, Offer> offerBySeatId = new HashMap<>();
-        for (Offer offer : offers) {
-            for (Seat s : offer.getSeats()) {
-                offerBySeatId.put(s.getId(), offer);
-            }
-        }
+        Map<UUID, Offer> offerBySeatId = OfferSeatIndex.create(offers);
 
         Order order = new Order();
         order.setUser(user);
