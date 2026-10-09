@@ -4,6 +4,7 @@ import cz.fit.cvut.seatlock.domain.Performer;
 import cz.fit.cvut.seatlock.dto.PerformerDTO;
 import cz.fit.cvut.seatlock.dto.PerformerPage;
 import cz.fit.cvut.seatlock.service.PerformerService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -22,13 +23,13 @@ public class PerformerResolver {
 
     @PreAuthorize("hasRole('ORGANIZATION')")
     @MutationMapping
-    public Boolean createPerformer(@Argument PerformerDTO input){
+    public Boolean createPerformer(@Argument @Valid PerformerDTO input) {
         return performerService.createPerformer(input);
     }
 
     @PreAuthorize("hasRole('ORGANIZATION')")
     @MutationMapping
-    public Boolean updatePerformer(@Argument PerformerDTO input, @Argument UUID id){
+    public Boolean updatePerformer(@Argument @Valid PerformerDTO input, @Argument UUID id) {
         return performerService.updatePerformer(input, id);
     }
 
