@@ -3,6 +3,7 @@ package cz.fit.cvut.seatlock.graphql;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
 import graphql.schema.DataFetchingEnvironment;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
 import org.springframework.graphql.execution.ErrorType;
@@ -32,6 +33,24 @@ public class GlobalGraphQLExceptionHandler {
         return GraphqlErrorBuilder.newError()
                 .errorType(ErrorType.BAD_REQUEST)
                 .message(ex.getMessage())
+                .path(env.getExecutionStepInfo().getPath())
+                .location(env.getField().getSourceLocation())
+                .build();
+    }
+
+    @GraphQlExceptionHandler
+    public GraphQLError handleConstraintViolationException(ConstraintViolationException ex, DataFetchingEnvironment env) {
+
+        String message = ex.getConstraintViolations().stream()
+                .map(violation -> violation.getMessage())
+                .distinct()
+                .sorted()
+                .reduce((first, second) -> first + "; " + second)
+                .orElse("Invalid request parameters");
+
+        return GraphqlErrorBuilder.newError()
+                .errorType(ErrorType.BAD_REQUEST)
+                .message(message)
                 .path(env.getExecutionStepInfo().getPath())
                 .location(env.getField().getSourceLocation())
                 .build();

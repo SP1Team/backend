@@ -4,6 +4,7 @@ import cz.fit.cvut.seatlock.domain.Performer;
 import cz.fit.cvut.seatlock.dto.PerformerDTO;
 import cz.fit.cvut.seatlock.dto.PerformerPage;
 import cz.fit.cvut.seatlock.service.PerformerService;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -38,7 +39,9 @@ public class PerformerResolver {
     }
 
     @QueryMapping
-    public PerformerPage getAllPerformers(@Argument int page, @Argument int size){
+    public PerformerPage getAllPerformers(
+            @Argument @Min(value = 0, message = "Page number must not be negative") int page,
+            @Argument @Min(value = 1, message = "Page size must be greater than zero") int size) {
         return performerService.getAllPerformers(page, size);
     }
 

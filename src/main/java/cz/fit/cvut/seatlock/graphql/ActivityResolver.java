@@ -14,6 +14,7 @@ import cz.fit.cvut.seatlock.repository.ActivityCategoryRepository;
 import cz.fit.cvut.seatlock.repository.HallRepository;
 import cz.fit.cvut.seatlock.repository.PerformerRepository;
 import cz.fit.cvut.seatlock.service.ActivityService;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.BatchMapping;
@@ -61,7 +62,9 @@ public class ActivityResolver {
     }
 
     @QueryMapping
-    public ActivityPage getAllActivities(@Argument int page, @Argument int size) {
+    public ActivityPage getAllActivities(
+            @Argument @Min(value = 0, message = "Page number must not be negative") int page,
+            @Argument @Min(value = 1, message = "Page size must be greater than zero") int size) {
         return activityService.getAllActivities(page, size);
     }
 
