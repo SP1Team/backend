@@ -220,7 +220,10 @@ public class ActivityService {
         for (RowOfferInput rowOffer : input.offers()) {
             Offer offer = offerByTypeName.get(rowOffer.typeName().toUpperCase());
             if (offer == null) throw new RuntimeException("Type not found: " + rowOffer.typeName());
-            List<Seat> rowSeats = seatsByRow.getOrDefault(rowOffer.row(), List.of());
+            List<Seat> rowSeats = seatsByRow.get(rowOffer.row());
+            if (rowSeats == null) {
+                throw new IllegalArgumentException("Row not found in activity hall: " + rowOffer.row());
+            }
             offer.getSeats().addAll(rowSeats);
         }
 
