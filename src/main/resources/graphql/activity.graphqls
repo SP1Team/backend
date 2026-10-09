@@ -34,7 +34,7 @@ type Activity{
 
 type ActivityPage {
     content: [Activity!]!
-    totalElements: Int!
+    totalElements: Long!
     totalPages: Int!
     pageNumber: Int!
 }

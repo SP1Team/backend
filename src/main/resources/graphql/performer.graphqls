@@ -6,7 +6,7 @@ type Performer{
 
 type PerformerPage {
     content: [Performer!]!
-    totalElements: Int!
+    totalElements: Long!
     totalPages: Int!
     pageNumber: Int!
 }
