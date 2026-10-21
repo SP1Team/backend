@@ -6,21 +6,22 @@ import cz.fit.cvut.seatlock.dto.TokenResponse;
 import cz.fit.cvut.seatlock.security.JWTUtils;
 import cz.fit.cvut.seatlock.security.SeatlockUserDetails;
 import cz.fit.cvut.seatlock.service.AuthService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,16 +45,7 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping("/register")
-    public ResponseEntity<Void> register(
-            @RequestBody(
-                    description = "User registration data",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = RegisterRequest.class)
-                    )
-            )
-            @org.springframework.web.bind.annotation.RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest registerRequest) {
         authService.register(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -70,15 +62,7 @@ public class AuthController {
     })
     @PostMapping("/login")
     public ResponseEntity<Void> login(
-            @RequestBody(
-                    description = "User login credentials",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = LoginRequest.class)
-                    )
-            )
-            @org.springframework.web.bind.annotation.RequestBody LoginRequest loginRequest,
+            @Valid @RequestBody LoginRequest loginRequest,
             HttpServletResponse response) {
         var token = authService.login(loginRequest);
         ResponseCookie cookie = ResponseCookie.from("accessToken", token)
@@ -104,16 +88,7 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping("/login-token")
-    public ResponseEntity<TokenResponse> loginWithToken(
-            @RequestBody(
-                    description = "User login credentials",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = LoginRequest.class)
-                    )
-            )
-            @org.springframework.web.bind.annotation.RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<TokenResponse> loginWithToken(@Valid @RequestBody LoginRequest loginRequest) {
         var token = authService.login(loginRequest);
         return ResponseEntity.ok(new TokenResponse(token));
     }

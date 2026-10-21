@@ -5,6 +5,7 @@ import cz.fit.cvut.seatlock.dto.UserResponse;
 import cz.fit.cvut.seatlock.repository.UserRepository;
 import cz.fit.cvut.seatlock.security.SeatlockUserDetails;
 import cz.fit.cvut.seatlock.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -12,10 +13,12 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.UUID;
 
 @Controller
+@Validated
 @RequiredArgsConstructor
 public class UserResolver {
 
@@ -37,7 +40,7 @@ public class UserResolver {
     @MutationMapping
     public Boolean updateUser(
             @AuthenticationPrincipal SeatlockUserDetails details,
-            @Argument UpdateUserRequest input
+            @Argument @Valid UpdateUserRequest input
     ){
         return service.updateUser(details.getUsername(), input);
     }

@@ -2,17 +2,20 @@ package cz.fit.cvut.seatlock.graphql;
 
 import cz.fit.cvut.seatlock.domain.ActivityCategory;
 import cz.fit.cvut.seatlock.service.ActivityCategoryService;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.UUID;
 
 @Controller
+@Validated
 @RequiredArgsConstructor
 public class ActivityCategoryResolver {
     private final ActivityCategoryService activityCategoryService;
@@ -30,13 +33,16 @@ public class ActivityCategoryResolver {
 
     @PreAuthorize("hasRole('ADMIN')")
     @MutationMapping
-    public Boolean changeCategory(@Argument UUID id, @Argument String name){
+    public Boolean changeCategory(
+            @Argument UUID id,
+            @Argument @NotBlank(message = "Category name must not be blank") String name){
         return activityCategoryService.changeCategory(id, name);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @MutationMapping
-    public Boolean addCategory(@Argument String name){
+    public Boolean addCategory(
+            @Argument @NotBlank(message = "Category name must not be blank") String name){
         return activityCategoryService.addCategory(name);
     }
 }

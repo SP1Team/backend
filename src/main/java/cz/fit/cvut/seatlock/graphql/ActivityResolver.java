@@ -4,16 +4,16 @@ import cz.fit.cvut.seatlock.domain.Activity;
 import cz.fit.cvut.seatlock.domain.ActivityCategory;
 import cz.fit.cvut.seatlock.domain.Hall;
 import cz.fit.cvut.seatlock.domain.Performer;
-import cz.fit.cvut.seatlock.dto.ActivityRequest;
 import cz.fit.cvut.seatlock.dto.ActivityPage;
+import cz.fit.cvut.seatlock.dto.ActivityRequest;
 import cz.fit.cvut.seatlock.dto.ActivitySearchRequest;
 import cz.fit.cvut.seatlock.dto.SeatMapResponse;
-import cz.fit.cvut.seatlock.dto.SeatMapRow;
 import cz.fit.cvut.seatlock.dto.SetOffersInput;
 import cz.fit.cvut.seatlock.repository.ActivityCategoryRepository;
 import cz.fit.cvut.seatlock.repository.HallRepository;
 import cz.fit.cvut.seatlock.repository.PerformerRepository;
 import cz.fit.cvut.seatlock.service.ActivityService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -22,6 +22,7 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
+@Validated
 @RequiredArgsConstructor
 public class ActivityResolver {
     private final ActivityService activityService;
@@ -39,13 +41,13 @@ public class ActivityResolver {
 
     @PreAuthorize("hasRole('ORGANIZATION')")
     @MutationMapping
-    public Boolean createActivity(@Argument ActivityRequest input) {
+    public Boolean createActivity(@Argument @Valid ActivityRequest input) {
         return activityService.createActivity(input);
     }
 
     @PreAuthorize("hasRole('ORGANIZATION')")
     @MutationMapping
-    public Boolean setOffers(@Argument UUID activityId, @Argument SetOffersInput input) {
+    public Boolean setOffers(@Argument UUID activityId, @Argument @Valid SetOffersInput input) {
         return activityService.setOffers(activityId, input);
     }
 
@@ -57,7 +59,7 @@ public class ActivityResolver {
 
     @PreAuthorize("hasRole('ORGANIZATION')")
     @MutationMapping
-    public Boolean updateActivity(@Argument ActivityRequest input, @Argument UUID id) {
+    public Boolean updateActivity(@Argument @Valid ActivityRequest input, @Argument UUID id) {
         return activityService.updateActivity(input, id);
     }
 
@@ -74,7 +76,7 @@ public class ActivityResolver {
     }
 
     @QueryMapping
-    public List<Activity> searchActivities(@Argument ActivitySearchRequest input){
+    public List<Activity> searchActivities(@Argument @Valid ActivitySearchRequest input){
         return activityService.search(input);
     }
 

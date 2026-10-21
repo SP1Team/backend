@@ -4,24 +4,27 @@ import cz.fit.cvut.seatlock.domain.Hall;
 import cz.fit.cvut.seatlock.dto.HallRequest;
 import cz.fit.cvut.seatlock.dto.HallSeatMapResponse;
 import cz.fit.cvut.seatlock.service.HallService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.UUID;
 
 @Controller
+@Validated
 @RequiredArgsConstructor
 public class HallResolver {
     private final HallService hallService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @MutationMapping
-    public Hall createHall(@Argument HallRequest input){
+    public Hall createHall(@Argument @Valid HallRequest input){
         return hallService.createHall(input);
     }
 
@@ -33,7 +36,9 @@ public class HallResolver {
 
     @PreAuthorize("hasRole('ADMIN')")
     @MutationMapping
-    public Boolean updateHall(@Argument HallRequest input, @Argument UUID id){ return hallService.updateHall(input, id); }
+    public Boolean updateHall(@Argument @Valid HallRequest input, @Argument UUID id){
+        return hallService.updateHall(input, id);
+    }
 
     @QueryMapping
     public List<Hall> getAllHalls(){

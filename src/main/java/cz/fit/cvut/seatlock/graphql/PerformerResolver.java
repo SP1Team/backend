@@ -1,8 +1,8 @@
 package cz.fit.cvut.seatlock.graphql;
 
 import cz.fit.cvut.seatlock.domain.Performer;
-import cz.fit.cvut.seatlock.dto.PerformerRequest;
 import cz.fit.cvut.seatlock.dto.PerformerPage;
+import cz.fit.cvut.seatlock.dto.PerformerRequest;
 import cz.fit.cvut.seatlock.service.PerformerService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -12,11 +12,13 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.UUID;
 
 @Controller
+@Validated
 @RequiredArgsConstructor
 public class PerformerResolver {
     private final PerformerService performerService;

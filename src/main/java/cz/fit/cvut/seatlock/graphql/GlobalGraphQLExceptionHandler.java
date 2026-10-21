@@ -8,7 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BindException;
+import org.springframework.validation.method.MethodValidationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+
+import java.util.Objects;
 
 @Slf4j
 @ControllerAdvice
@@ -47,6 +51,44 @@ public class GlobalGraphQLExceptionHandler {
                 .sorted()
                 .reduce((first, second) -> first + "; " + second)
                 .orElse("Invalid request parameters");
+
+        return GraphqlErrorBuilder.newError()
+                .errorType(ErrorType.BAD_REQUEST)
+                .message(message)
+                .path(env.getExecutionStepInfo().getPath())
+                .location(env.getField().getSourceLocation())
+                .build();
+    }
+
+    @GraphQlExceptionHandler
+    public GraphQLError handleBindException(BindException ex, DataFetchingEnvironment env) {
+
+        String message = ex.getFieldErrors().stream()
+                .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                .distinct()
+                .sorted()
+                .reduce((first, second) -> first + "; " + second)
+                .orElse("Validation failed");
+
+        return GraphqlErrorBuilder.newError()
+                .errorType(ErrorType.BAD_REQUEST)
+                .message(message)
+                .path(env.getExecutionStepInfo().getPath())
+                .location(env.getField().getSourceLocation())
+                .build();
+    }
+
+    @GraphQlExceptionHandler
+    public GraphQLError handleMethodValidationException(MethodValidationException ex, DataFetchingEnvironment env) {
+
+        String message = ex.getAllValidationResults().stream()
+                .flatMap(r -> r.getResolvableErrors().stream())
+                .map(err -> err.getDefaultMessage())
+                .filter(Objects::nonNull)
+                .distinct()
+                .sorted()
+                .reduce((first, second) -> first + "; " + second)
+                .orElse("Validation failed");
 
         return GraphqlErrorBuilder.newError()
                 .errorType(ErrorType.BAD_REQUEST)
