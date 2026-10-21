@@ -43,6 +43,10 @@ public class ActivityService {
 
         ActivityCategory activityCategory = activityCategoryRepository.findById(request.categoryId()).orElseThrow(() -> new RuntimeException("Activity category not found"));
 
+        if (request.startTime() != null && request.endTime() != null && !request.endTime().isAfter(request.startTime())) {
+            throw new IllegalArgumentException("End time must be after start time");
+        }
+
         if (!activityRepository.availableTimeForActivity(request.hallId(), request.date(), request.startTime(), request.endTime(), null)) {
             throw new RuntimeException("Hall is not available at this time");
         }
@@ -174,6 +178,10 @@ public class ActivityService {
         LocalDate date = request.date() != null ? request.date() : activity.getDate();
         LocalTime startTime = request.startTime() != null ? request.startTime() : activity.getStartTime();
         LocalTime endTime = request.endTime() != null ? request.endTime() : activity.getEndTime();
+
+        if (!endTime.isAfter(startTime)) {
+            throw new IllegalArgumentException("End time must be after start time");
+        }
 
         if (!activityRepository.availableTimeForActivity(hallId, date, startTime, endTime, id)) {
             throw new RuntimeException("Hall is not available at this time");
