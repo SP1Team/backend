@@ -54,6 +54,13 @@ public class SeatRepository {
                 .fetchInto(Seat.class);
     }
 
+    public List<Seat> findAllByIdsAndHallId(List<UUID> ids, UUID hallId) {
+        return dsl.selectFrom(SEAT)
+                .where(SEAT.ID.in(ids))
+                .and(SEAT.HALL_ID.eq(hallId))
+                .fetchInto(Seat.class);
+    }
+
     public void deleteByHallId(UUID hallId){
         dsl.deleteFrom(SEAT)
                 .where(SEAT.HALL_ID.eq(hallId))

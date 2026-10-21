@@ -52,7 +52,7 @@ public class ActivityService {
         }
 
         List<Performer> performers = findPerformersOrThrow(request.performer());
-        Map<UUID, Seat> priceZoneSeats = findPriceZoneSeatsOrThrow(request.priceZones());
+        Map<UUID, Seat> priceZoneSeats = findPriceZoneSeatsOrThrow(request.priceZones(), request.hallId());
 
         Activity newActivity = new Activity(request.name(), request.date(), request.startTime(), request.endTime(), request.description(), activityCategory, hall, performers);
         List<Offer> offers = new ArrayList<>();
@@ -106,7 +106,7 @@ public class ActivityService {
         return performers;
     }
 
-    private Map<UUID, Seat> findPriceZoneSeatsOrThrow(List<PriceZoneRequest> priceZones) {
+    private Map<UUID, Seat> findPriceZoneSeatsOrThrow(List<PriceZoneRequest> priceZones, UUID hallId) {
         if (priceZones == null || priceZones.isEmpty()) {
             return Map.of();
         }
@@ -119,10 +119,10 @@ public class ActivityService {
             return Map.of();
         }
 
-        List<Seat> seats = seatRepository.findAllByIds(seatIds);
+        List<Seat> seats = seatRepository.findAllByIdsAndHallId(seatIds, hallId);
         Map<UUID, Seat> seatsById = seats.stream()
                 .collect(Collectors.toMap(Seat::getId, seat -> seat));
-        ensureAllIdsFound(seatIds, seatsById.keySet(), "Seat");
+        ensureAllIdsFound(seatIds, seatsById.keySet(), "Seat in hall " + hallId);
         return seatsById;
     }
 
@@ -215,7 +215,7 @@ public class ActivityService {
                 offerRepository.deleteByActivityId(id);
             }
 
-            Map<UUID, Seat> priceZoneSeats = findPriceZoneSeatsOrThrow(request.priceZones());
+            Map<UUID, Seat> priceZoneSeats = findPriceZoneSeatsOrThrow(request.priceZones(), hallId);
             List<Offer> newOffers = new ArrayList<>();
             for (PriceZoneRequest zone : request.priceZones()) {
                 Offer offer = new Offer();
