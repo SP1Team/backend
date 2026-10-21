@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class HallService {
     private final HallRepository hallRepository;
@@ -50,6 +51,7 @@ public class HallService {
         return savedHall;
     }
 
+    @Transactional
     public Boolean deleteHall(UUID id) {
         Hall hallToDelete = hallRepository.findById(id).orElseThrow(() -> new RuntimeException("Hall not found"));
         seatRepository.deleteByHallId(id);
@@ -83,6 +85,7 @@ public class HallService {
         return new HallSeatMapResponse(rows);
     }
 
+    @Transactional
     public Boolean updateHall(HallRequest request, UUID id) {
         Hall hallToUpdate = hallRepository.findById(id).orElseThrow(() -> new RuntimeException("Hall not found"));
         if(request.name() != null){

@@ -3,7 +3,6 @@ package cz.fit.cvut.seatlock.service;
 import cz.fit.cvut.seatlock.domain.*;
 import cz.fit.cvut.seatlock.domain.enums.OrderStatus;
 import cz.fit.cvut.seatlock.domain.enums.TicketStatus;
-import cz.fit.cvut.seatlock.domain.enums.TicketType;
 import cz.fit.cvut.seatlock.dto.CheckoutResponse;
 import cz.fit.cvut.seatlock.dto.OrderResponse;
 import cz.fit.cvut.seatlock.repository.*;
@@ -17,6 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;

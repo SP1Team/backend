@@ -7,8 +7,10 @@ import cz.fit.cvut.seatlock.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
@@ -20,6 +22,7 @@ public class UserService {
         return new UserResponse(user.getName(), user.getSurname(), user.getEmail(), user.getRole().getAuthority(), user.getPhoneNumber());
     }
 
+    @Transactional
     public Boolean updateUser(String email, UpdateUserRequest input) {
         var user = userRepository.findUserByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 

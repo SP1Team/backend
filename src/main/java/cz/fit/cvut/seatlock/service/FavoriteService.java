@@ -7,11 +7,13 @@ import cz.fit.cvut.seatlock.repository.FavoriteRepository;
 import cz.fit.cvut.seatlock.repository.PerformerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class FavoriteService {
 
@@ -27,6 +29,7 @@ public class FavoriteService {
         return favoriteRepository.findFavoritePerformersByUserId(userId);
     }
 
+    @Transactional
     public boolean toggleFavoriteActivity(UUID userId, UUID activityId) {
         activityRepository.findById(activityId)
                 .orElseThrow(() -> new RuntimeException("Activity not found"));
@@ -40,6 +43,7 @@ public class FavoriteService {
         }
     }
 
+    @Transactional
     public boolean toggleFavoritePerformer(UUID userId, UUID performerId) {
         performerRepository.findById(performerId)
                 .orElseThrow(() -> new RuntimeException("Performer not found"));

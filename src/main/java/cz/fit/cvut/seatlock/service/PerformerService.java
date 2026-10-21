@@ -1,23 +1,26 @@
 package cz.fit.cvut.seatlock.service;
 
 import cz.fit.cvut.seatlock.domain.Performer;
-import cz.fit.cvut.seatlock.dto.PerformerRequest;
 import cz.fit.cvut.seatlock.dto.PerformerPage;
+import cz.fit.cvut.seatlock.dto.PerformerRequest;
 import cz.fit.cvut.seatlock.es_documents.PerformerDocument;
 import cz.fit.cvut.seatlock.es_documents.PerformerSearchRepository;
 import cz.fit.cvut.seatlock.events.PerformerEventDTO;
 import cz.fit.cvut.seatlock.repository.ActivityRepository;
 import cz.fit.cvut.seatlock.repository.PerformerRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.UUID;
 
+@Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PerformerService {
     private final PerformerRepository performerRepository;
@@ -25,6 +28,7 @@ public class PerformerService {
     private final ApplicationEventPublisher eventPublisher;
     private final PerformerSearchRepository performerSearchRepository;
 
+    @Transactional
     public Boolean createPerformer(PerformerRequest input) {
         Performer performer = new Performer(input.name(), input.description());
         Performer saved = performerRepository.save(performer);
@@ -36,6 +40,7 @@ public class PerformerService {
         return true;
     }
 
+    @Transactional
     public Boolean updatePerformer(PerformerRequest request, UUID id) {
         Performer performerToUpdate = performerRepository.findById(id).orElseThrow(() -> new RuntimeException("Performer not found"));
 
@@ -56,11 +61,16 @@ public class PerformerService {
         return true;
     }
 
+    @Transactional
     public Boolean deletePerformer(UUID id) {
         Performer performerToDelete = performerRepository.findById(id).orElseThrow(() -> new RuntimeException("Performer not found"));
         activityRepository.deletePerformerFromActivities(id);
         performerRepository.delete(performerToDelete);
-        performerSearchRepository.deleteById(id.toString());
+        try {
+            performerSearchRepository.deleteById(id.toString());
+        } catch (Exception e) {
+            log.error("Failed to delete performer from Elasticsearch index for id: {}", id, e);
+        }
         return true;
     }
 

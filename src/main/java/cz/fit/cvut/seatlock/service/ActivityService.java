@@ -1,7 +1,6 @@
 package cz.fit.cvut.seatlock.service;
 
 import cz.fit.cvut.seatlock.domain.*;
-import cz.fit.cvut.seatlock.domain.enums.TicketStatus;
 import cz.fit.cvut.seatlock.domain.enums.TicketType;
 import cz.fit.cvut.seatlock.dto.*;
 import cz.fit.cvut.seatlock.es_documents.ActivityDocument;
@@ -9,15 +8,19 @@ import cz.fit.cvut.seatlock.es_documents.ActivitySearchRepository;
 import cz.fit.cvut.seatlock.events.ActivityEventDTO;
 import cz.fit.cvut.seatlock.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ActivityService {
     private final ActivityRepository activityRepository;
@@ -30,6 +33,7 @@ public class ActivityService {
     private final ApplicationEventPublisher eventPublisher;
     private final ActivitySearchRepository activitySearchRepository;
 
+    @Transactional
     public Boolean createActivity(ActivityRequest request) {
         if (activityRepository.findByName(request.name()).isPresent()) {
             throw new RuntimeException("Activity with this name already exists");
@@ -138,15 +142,21 @@ public class ActivityService {
                 .orElseThrow(() -> new RuntimeException("Activity not found"));
     }
 
+    @Transactional
     public Boolean deleteActivity(UUID id) {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Activity not found"));
         activityRepository.deletePerformers(id);
         activityRepository.delete(activity);
-        activitySearchRepository.deleteById(id.toString());
+        try {
+            activitySearchRepository.deleteById(id.toString());
+        } catch (Exception e) {
+            log.error("Failed to delete activity from Elasticsearch index for id: {}", id, e);
+        }
         return true;
     }
 
+    @Transactional
     public Boolean updateActivity(ActivityRequest request, UUID id) {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Activity not found"));
@@ -233,6 +243,7 @@ public class ActivityService {
         return new SeatMapResponse(rows, priceZones);
     }
 
+    @Transactional
     public Boolean setOffers(UUID activityId, SetOffersInput input) {
         Activity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new RuntimeException("Activity not found"));
