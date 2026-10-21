@@ -146,6 +146,7 @@ public class ActivityService {
     public Boolean deleteActivity(UUID id) {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Activity not found"));
+        offerRepository.deleteByActivityId(id);
         activityRepository.deletePerformers(id);
         activityRepository.delete(activity);
         try {
@@ -184,9 +185,47 @@ public class ActivityService {
         if (request.endTime() != null) activity.setEndTime(request.endTime());
         if (request.description() != null) activity.setDescription(request.description());
 
+        boolean hallChanged = request.hallId() != null && !request.hallId().equals(activity.getHallId());
+        if (hallChanged) {
+            var purchasedSeats = ticketRepository.findPurchasedSeatIdsByActivityId(id);
+            if (purchasedSeats != null && !purchasedSeats.isEmpty()) {
+                throw new RuntimeException("Cannot change hall for an activity with purchased tickets");
+            }
+            offerRepository.deleteByActivityId(id);
+        }
+
         Hall hall = hallRepository.findById(hallId)
                 .orElseThrow(() -> new RuntimeException("Hall not found"));
         activity.setHall(hall);
+
+        if (request.priceZones() != null && !request.priceZones().isEmpty()) {
+            if (!hallChanged) {
+                var purchasedSeats = ticketRepository.findPurchasedSeatIdsByActivityId(id);
+                if (purchasedSeats != null && !purchasedSeats.isEmpty()) {
+                    throw new RuntimeException("Cannot update price zones for an activity with purchased tickets");
+                }
+                offerRepository.deleteByActivityId(id);
+            }
+
+            Map<UUID, Seat> priceZoneSeats = findPriceZoneSeatsOrThrow(request.priceZones());
+            List<Offer> newOffers = new ArrayList<>();
+            for (PriceZoneRequest zone : request.priceZones()) {
+                Offer offer = new Offer();
+                offer.setActivity(activity);
+                offer.setPrice(zone.price());
+                offer.setType(zone.ticketType());
+
+                if (zone.seatIds() != null && !zone.seatIds().isEmpty()) {
+                    List<Seat> zoneSeats = zone.seatIds().stream()
+                            .map(priceZoneSeats::get)
+                            .toList();
+                    offer.setSeats(zoneSeats);
+                }
+                newOffers.add(offer);
+            }
+            OfferSeatIndex.create(newOffers);
+            newOffers.forEach(offerRepository::save);
+        }
 
         UUID categoryId = request.categoryId() != null ? request.categoryId() : activity.getActivityCategoryId();
         ActivityCategory category = activityCategoryRepository.findById(categoryId)

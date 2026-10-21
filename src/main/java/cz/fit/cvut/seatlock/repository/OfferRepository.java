@@ -88,4 +88,18 @@ public class OfferRepository {
                 .where(OFFER.ID.eq(offer.getId()))
                 .execute();
     }
+
+    public void deleteByActivityId(UUID activityId) {
+        dsl.deleteFrom(DSL.table("offer_seat"))
+                .where(DSL.field("offer_id").in(
+                        dsl.select(OFFER.ID)
+                                .from(OFFER)
+                                .where(OFFER.ACTIVITY_ID.eq(activityId))
+                ))
+                .execute();
+
+        dsl.deleteFrom(OFFER)
+                .where(OFFER.ACTIVITY_ID.eq(activityId))
+                .execute();
+    }
 }
