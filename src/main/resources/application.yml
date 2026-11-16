@@ -15,6 +15,17 @@ spring:
     uris: ${SPRING_ELASTICSEARCH_URIS}
     socket-timeout: 10s
 
+  ai:
+    # Spring AI builds the OpenAI clients without touching the network, and an empty API key is
+    # accepted, so the application starts offline. The assistant stays switched off until a key
+    # is provided: OPENAI_API_KEY=sk-... (optionally AI_CHAT_MODEL to pick another model).
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      chat:
+        options:
+          model: ${AI_CHAT_MODEL:gpt-4o-mini}
+          temperature: 0.2
+
   graphql:
     graphiql:
       enabled: true

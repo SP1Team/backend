@@ -1,0 +1,8 @@
+type AssistantAnswer {
+    answer: String!
+    conversationId: String!
+}
+
+extend type Mutation {
+    askAssistant(question: String!, conversationId: String!): AssistantAnswer!
+}
